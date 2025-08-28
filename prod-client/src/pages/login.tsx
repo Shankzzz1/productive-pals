@@ -75,28 +75,34 @@ const LoginPage: React.FC = () => {
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+  if (e) e.preventDefault();
 
-    setIsLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Handle successful login
-      console.log('Login successful:', formData);
-      alert('Login successful!');
-      
-    } catch (error) {
-      setErrors({ general: 'Invalid email or password. Please try again.' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  if (!validateForm()) return;
+
+  setIsLoading(true);
+
+  try {
+    const res = await fetch("http://localhost:5000/api/users/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: formData.email, password: formData.password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message);
+
+    console.log("Login successful:", data);
+    alert("Login successful!");
+    localStorage.setItem("token", data.token); // Save JWT
+
+  } catch (error: any) {
+    setErrors({ general: error.message });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
