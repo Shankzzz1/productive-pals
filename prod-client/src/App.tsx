@@ -6,6 +6,9 @@ import TaskList from "./pages/Tasklist";
 import Timer from "./pages/Timer";
 import FocusStatsChart from "./pages/FocusStatsChart";
 import type { JSX } from "react";
+import DigitalTimer from "./pages/DigitalTimer";
+
+import CollectiveCarousel from "./pages/CollectiveCarousel";
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -23,6 +26,8 @@ function App() {
         {/* Public Routes */}
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/digital" element={<DigitalTimer />} />
+        <Route path="/collect" element={<CollectiveCarousel/>} />
         <Route path="/" element={<Home />} />
 
         {/* Protected Routes */}
