@@ -3,8 +3,11 @@ import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
 import Home from "./pages/Home";
 import TaskList from "./pages/Tasklist";
+import Timer from "./pages/Timer";
+import FocusStatsChart from "./pages/FocusStatsChart";
 import type { JSX } from "react";
 
+// Protected Route wrapper
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -17,8 +20,12 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Public Routes */}
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<Home />} />
+
+        {/* Protected Routes */}
         <Route
           path="/task"
           element={
@@ -27,7 +34,22 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/" element={<Home />} /> {/* Default route */}
+        <Route
+          path="/Timer"
+          element={
+            <ProtectedRoute>
+              <Timer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stats"
+          element={
+            <ProtectedRoute>
+              <FocusStatsChart />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

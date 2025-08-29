@@ -4,6 +4,7 @@ import connectDB from "./config/db";
 import cors from "cors";
 import userRoutes from "./routes/RegUserRoutes";
 import taskRoutes  from "./routes/taskRoutes";
+import focusRoutes from "./routes/focusRoutes";
 
 const app = express();
 const PORT = 5000;
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/focus", focusRoutes);
 
 // Start server
 app.listen(PORT, () => {

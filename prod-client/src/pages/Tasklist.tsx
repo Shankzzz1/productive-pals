@@ -414,11 +414,11 @@ const TaskList: React.FC = () => {
     window.location.href = '/login'; // Adjust this to your login route
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setError("Logged out successfully");
-    setTasks([]);
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem("token");
+  //   setError("Logged out successfully");
+  //   setTasks([]);
+  // };
 
   const completedCount = tasks.filter((t) => t.completed).length;
   const totalCount = tasks.length;
@@ -494,14 +494,14 @@ const TaskList: React.FC = () => {
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between mb-2">
             <CardTitle className="text-xl font-bold">Task List</CardTitle>
-            <Button
+            {/* <Button
               onClick={handleLogout}
               variant="outline"
               size="sm"
               className="text-xs"
-            >
-              Logout
-            </Button>
+            > */}
+              {/* Logout
+            </Button> */}
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500">
