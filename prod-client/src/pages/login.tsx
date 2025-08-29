@@ -1,12 +1,19 @@
-
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, Github } from 'lucide-react';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff, Github } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface FormData {
   email: string;
@@ -22,10 +29,11 @@ interface FormErrors {
 
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
-    rememberMe: false
+    email: "",
+    password: "",
+    rememberMe: false,
   });
+  const navigate = useNavigate();
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -33,24 +41,24 @@ const LoginPage: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name as keyof FormErrors]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: undefined
+        [name]: undefined,
       }));
     }
   };
 
   const handleRememberMeChange = (checked: boolean) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      rememberMe: checked
+      rememberMe: checked,
     }));
   };
 
@@ -60,14 +68,14 @@ const LoginPage: React.FC = () => {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     }
 
     setErrors(newErrors);
@@ -75,56 +83,58 @@ const LoginPage: React.FC = () => {
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
-  if (e) e.preventDefault();
+    if (e) e.preventDefault();
 
-  if (!validateForm()) return;
+    if (!validateForm()) return;
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  try {
-    const res = await fetch("http://localhost:5000/api/users/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: formData.email, password: formData.password })
-    });
+    try {
+      const res = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) throw new Error(data.message);
+      if (!res.ok) throw new Error(data.message);
 
-    console.log("Login successful:", data);
-    alert("Login successful!");
-    localStorage.setItem("token", data.token); // Save JWT
-
-  } catch (error: any) {
-    setErrors({ general: error.message });
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+      console.log("Login successful:", data);
+      alert("Login successful!");
+      localStorage.setItem("token", data.token); // Save JWT
+      navigate("/task");
+    } catch (error: any) {
+      setErrors({ general: error.message });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSubmit();
     }
   };
 
   const handleGoogleLogin = () => {
     // Handle Google OAuth
-    console.log('Google login clicked');
-    alert('Google login would be implemented here');
+    console.log("Google login clicked");
+    alert("Google login would be implemented here");
   };
 
   const handleGithubLogin = () => {
     // Handle GitHub OAuth
-    console.log('GitHub login clicked');
-    alert('GitHub login would be implemented here');
+    console.log("GitHub login clicked");
+    alert("GitHub login would be implemented here");
   };
 
   const handleForgotPassword = () => {
-    console.log('Forgot password clicked');
-    alert('Forgot password flow would be implemented here');
+    console.log("Forgot password clicked");
+    alert("Forgot password flow would be implemented here");
   };
 
   return (
@@ -138,7 +148,7 @@ const LoginPage: React.FC = () => {
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {errors.general && (
             <Alert variant="destructive">
@@ -158,7 +168,7 @@ const LoginPage: React.FC = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
-                className={errors.email ? 'border-red-500' : ''}
+                className={errors.email ? "border-red-500" : ""}
                 autoComplete="email"
               />
               {errors.email && (
@@ -183,12 +193,12 @@ const LoginPage: React.FC = () => {
                 <Input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
-                  className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+                  className={errors.password ? "border-red-500 pr-10" : "pr-10"}
                   autoComplete="current-password"
                 />
                 <Button
@@ -226,12 +236,12 @@ const LoginPage: React.FC = () => {
             </div>
 
             {/* Submit Button */}
-            <Button 
+            <Button
               onClick={handleSubmit}
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </div>
 
@@ -241,14 +251,16 @@ const LoginPage: React.FC = () => {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-white px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
 
           {/* Social Login Buttons */}
           <div className="grid grid-cols-2 gap-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleGoogleLogin}
               className="w-full"
             >
@@ -272,9 +284,9 @@ const LoginPage: React.FC = () => {
               </svg>
               Google
             </Button>
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               onClick={handleGithubLogin}
               className="w-full"
             >
@@ -286,8 +298,11 @@ const LoginPage: React.FC = () => {
 
         <CardFooter>
           <div className="text-center text-sm text-muted-foreground w-full">
-            Don't have an account?{' '}
-            <a href="/register" className="underline underline-offset-4 hover:text-primary">
+            Don't have an account?{" "}
+            <a
+              href="/register"
+              className="underline underline-offset-4 hover:text-primary"
+            >
               Sign up
             </a>
           </div>

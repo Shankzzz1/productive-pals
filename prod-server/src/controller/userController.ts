@@ -62,7 +62,7 @@ export const loginUser = async (req: Request, res: Response) => {
     // Create JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email },
-      process.env.JWT_SECRET || "secretkey",
+      process.env.JWT_SECRET || "your_jwt_secret",
       { expiresIn: "7d" } // 7 days
     );
 
@@ -73,6 +73,7 @@ export const loginUser = async (req: Request, res: Response) => {
       token
     });
 
+  
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error. Please try again." });

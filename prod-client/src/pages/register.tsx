@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Github } from 'lucide-react';
+import {useNavigate} from "react-router-dom";
 
 interface FormData {
   username: string;
@@ -29,6 +30,7 @@ const RegisterPage: React.FC = () => {
     confirmPassword: ''
   });
 
+  const navigate = useNavigate();
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -112,6 +114,8 @@ const RegisterPage: React.FC = () => {
       console.log("Registration successful:", data);
       alert("Registration successful!");
       // Optionally redirect to login page
+
+      navigate("/")
     }
 
   } catch (error) {
