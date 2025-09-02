@@ -17,12 +17,12 @@ interface CollectProps {
 export default function Collect({
   time,
   isRunning,
-  mode,
+  // mode,
   onStart,
   onPause,
   onReset,
   onAdjustTime,
-  onModeChange
+  // onModeChange
 }: CollectProps) {
   return (
     <div className="min-h-screen bg-gray-50 p-2">
