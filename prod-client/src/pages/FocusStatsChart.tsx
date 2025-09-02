@@ -1,11 +1,28 @@
-import  { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-// import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Clock, CheckCircle, TrendingUp, Trash2 } from 'lucide-react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
+import { Clock, CheckCircle, TrendingUp, Trash2 } from "lucide-react";
+import axios from "axios";
 
 interface FocusSession {
   id: string;
@@ -34,76 +51,90 @@ interface CategoryData {
 }
 
 const FocusStatsChart = () => {
-  const [timeRange, setTimeRange] = useState('week');
+  const [timeRange, setTimeRange] = useState("week");
   const [sessions, setSessions] = useState<FocusSession[]>([]);
 
   // Fetch sessions from backend
-  useEffect(() => {
   const fetchSessions = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/focus', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      const res = await axios.get("http://localhost:5000/api/focus", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      // Ensure res.data is an array
       const data = Array.isArray(res.data) ? res.data : [];
       setSessions(data);
     } catch (err) {
-      console.error('Error fetching focus sessions:', err);
-      setSessions([]); // fallback
+      console.error("Error fetching focus sessions:", err);
+      setSessions([]);
     }
   };
-  fetchSessions();
-}, []);
 
+  useEffect(() => {
+    fetchSessions(); // initial fetch
+    const interval = setInterval(fetchSessions, 10000); // refresh every 10s
+    return () => clearInterval(interval);
+  }, []);
 
   const clearAllData = async () => {
     try {
-      await axios.delete('http://localhost:5000/api/focus', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      await axios.delete("http://localhost:5000/api/focus", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setSessions([]);
     } catch (err) {
-      console.error('Error clearing data:', err);
+      console.error("Error clearing data:", err);
     }
   };
 
+  // ---- Data Transformation Functions ----
   const generateWeeklyData = (): DayData[] => {
-    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const today = new Date();
     const weekStart = new Date(today);
-    weekStart.setDate(today.getDate() - today.getDay() + 1); // Start from Monday
+    weekStart.setDate(today.getDate() - today.getDay() + 1);
 
     return dayNames.map((day, index) => {
       const currentDate = new Date(weekStart);
       currentDate.setDate(weekStart.getDate() + index);
-      const dateStr = currentDate.toISOString().split('T')[0];
+      const dateStr = currentDate.toISOString().split("T")[0];
 
-      const daySessions = sessions.filter(session => session.date === dateStr);
-      const focusTime = daySessions.reduce((sum, session) => sum + session.focusTime, 0);
-      const tasksCompleted = daySessions.reduce((sum, session) => sum + session.tasksCompleted, 0);
+      const daySessions = sessions.filter((session) => session.date === dateStr);
+      const focusTime = daySessions.reduce(
+        (sum, session) => sum + session.focusTime,
+        0
+      );
+      const tasksCompleted = daySessions.reduce(
+        (sum, session) => sum + session.tasksCompleted,
+        0
+      );
 
       return { day, focusTime: Math.round(focusTime * 10) / 10, tasksCompleted };
     });
   };
 
   const generateMonthlyData = (): WeekData[] => {
-    const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+    const weeks = ["Week 1", "Week 2", "Week 3", "Week 4"];
     const today = new Date();
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    
+
     return weeks.map((week, weekIndex) => {
       const weekStart = new Date(firstDayOfMonth);
-      weekStart.setDate(firstDayOfMonth.getDate() + (weekIndex * 7));
+      weekStart.setDate(firstDayOfMonth.getDate() + weekIndex * 7);
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
 
-      const weekSessions = sessions.filter(session => {
+      const weekSessions = sessions.filter((session) => {
         const sessionDate = new Date(session.date);
         return sessionDate >= weekStart && sessionDate <= weekEnd;
       });
 
-      const focusTime = weekSessions.reduce((sum, session) => sum + session.focusTime, 0);
-      const tasksCompleted = weekSessions.reduce((sum, session) => sum + session.tasksCompleted, 0);
+      const focusTime = weekSessions.reduce(
+        (sum, session) => sum + session.focusTime,
+        0
+      );
+      const tasksCompleted = weekSessions.reduce(
+        (sum, session) => sum + session.tasksCompleted,
+        0
+      );
 
       return { week, focusTime: Math.round(focusTime * 10) / 10, tasksCompleted };
     });
@@ -111,11 +142,11 @@ const FocusStatsChart = () => {
 
   const generateCategoryData = (): CategoryData[] => {
     const categoryColors: Record<string, string> = {
-      'Development': '#8884d8',
-      'Design': '#82ca9d',
-      'Meetings': '#ffc658',
-      'Planning': '#ff7c7c',
-      'Other': '#888888'
+      Development: "#8884d8",
+      Design: "#82ca9d",
+      Meetings: "#ffc658",
+      Planning: "#ff7c7c",
+      Other: "#888888",
     };
 
     const categoryTotals = sessions.reduce((acc, session) => {
@@ -123,20 +154,26 @@ const FocusStatsChart = () => {
       return acc;
     }, {} as Record<string, number>);
 
-    const total = Object.values(categoryTotals).reduce((sum, time) => sum + time, 0);
+    const total = Object.values(categoryTotals).reduce(
+      (sum, time) => sum + time,
+      0
+    );
 
     return Object.entries(categoryTotals).map(([name, time]) => ({
       name,
       value: total > 0 ? Math.round((time / total) * 100) : 0,
-      color: categoryColors[name] || categoryColors['Other']
+      color: categoryColors[name] || categoryColors["Other"],
     }));
   };
 
-  const currentData = timeRange === 'week' ? generateWeeklyData() : generateMonthlyData();
+  // ---- Derived Stats ----
+  const currentData =
+    timeRange === "week" ? generateWeeklyData() : generateMonthlyData();
   const categoryData = generateCategoryData();
   const totalFocusTime = currentData.reduce((sum, item) => sum + item.focusTime, 0);
   const totalTasks = currentData.reduce((sum, item) => sum + item.tasksCompleted, 0);
-  const averageFocusTime = currentData.length > 0 ? totalFocusTime / currentData.length : 0;
+  const averageFocusTime =
+    currentData.length > 0 ? totalFocusTime / currentData.length : 0;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -162,7 +199,9 @@ const FocusStatsChart = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalFocusTime.toFixed(1)}h</div>
-            <p className="text-xs text-muted-foreground">{timeRange === 'week' ? 'This week' : 'This month'}</p>
+            <p className="text-xs text-muted-foreground">
+              {timeRange === "week" ? "This week" : "This month"}
+            </p>
           </CardContent>
         </Card>
 
@@ -173,18 +212,26 @@ const FocusStatsChart = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalTasks}</div>
-            <p className="text-xs text-muted-foreground">{timeRange === 'week' ? 'This week' : 'This month'}</p>
+            <p className="text-xs text-muted-foreground">
+              {timeRange === "week" ? "This week" : "This month"}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Daily Focus</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Average Daily Focus
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{averageFocusTime.toFixed(1)}h</div>
-            <p className="text-xs text-muted-foreground">Per {timeRange === 'week' ? 'day' : 'week'}</p>
+            <div className="text-2xl font-bold">
+              {averageFocusTime.toFixed(1)}h
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Per {timeRange === "week" ? "day" : "week"}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -210,40 +257,48 @@ const FocusStatsChart = () => {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={currentData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey={timeRange === 'week' ? 'day' : 'week'} 
-                  fontSize={12} 
-                />
-                <YAxis 
-                  yAxisId="left" 
+                <XAxis
+                  dataKey={timeRange === "week" ? "day" : "week"}
                   fontSize={12}
-                  label={{ value: 'Focus Time (h)', angle: -90, position: 'insideLeft' }}
                 />
-                <YAxis 
-                  yAxisId="right" 
-                  orientation="right" 
+                <YAxis
+                  yAxisId="left"
                   fontSize={12}
-                  label={{ value: 'Tasks Completed', angle: 90, position: 'insideRight' }}
+                  label={{
+                    value: "Focus Time (h)",
+                    angle: -90,
+                    position: "insideLeft",
+                  }}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  fontSize={12}
+                  label={{
+                    value: "Tasks Completed",
+                    angle: 90,
+                    position: "insideRight",
+                  }}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
-                <Line 
-                  yAxisId="left" 
-                  type="monotone" 
-                  dataKey="focusTime" 
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="focusTime"
                   name="Focus Time (h)"
-                  stroke="#8884d8" 
-                  strokeWidth={3} 
-                  dot={{ fill: '#8884d8', r: 4 }} 
+                  stroke="#8884d8"
+                  strokeWidth={3}
+                  dot={{ fill: "#8884d8", r: 4 }}
                 />
-                <Line 
-                  yAxisId="right" 
-                  type="monotone" 
-                  dataKey="tasksCompleted" 
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="tasksCompleted"
                   name="Tasks Completed"
-                  stroke="#82ca9d" 
-                  strokeWidth={3} 
-                  dot={{ fill: '#82ca9d', r: 4 }} 
+                  stroke="#82ca9d"
+                  strokeWidth={3}
+                  dot={{ fill: "#82ca9d", r: 4 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -284,7 +339,11 @@ const FocusStatsChart = () => {
 
       {/* Clear Data Button */}
       <div className="flex justify-end">
-        <Button variant="destructive" onClick={clearAllData} className="flex items-center gap-2">
+        <Button
+          variant="destructive"
+          onClick={clearAllData}
+          className="flex items-center gap-2"
+        >
           <Trash2 className="h-4 w-4" />
           Clear All Data
         </Button>

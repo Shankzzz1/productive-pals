@@ -1,0 +1,258 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { User, Hash, LogIn, AlertCircle } from 'lucide-react';
+
+interface JoinFormData {
+  username: string;
+  roomId: string;
+}
+
+interface FormErrors {
+  username?: string;
+  roomId?: string;
+  general?: string;
+}
+
+const JoinRoom: React.FC = () => {
+  const [formData, setFormData] = useState<JoinFormData>({
+    username: '',
+    roomId: ''
+  });
+  
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isJoining, setIsJoining] = useState(false);
+  const [joinSuccess, setJoinSuccess] = useState(false);
+
+  // Simulate existing rooms for validation
+  const existingRooms = ['ABC123', 'XYZ789', 'FOCUS1', 'STUDY2', 'WORK99'];
+
+  const handleInputChange = (field: keyof JoinFormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Clear errors when user starts typing
+    if (errors[field] || errors.general) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: undefined,
+        general: undefined
+      }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    // Username validation
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
+    } else if (formData.username.trim().length < 2) {
+      newErrors.username = 'Username must be at least 2 characters';
+    } else if (formData.username.trim().length > 20) {
+      newErrors.username = 'Username must be less than 20 characters';
+    }
+
+    // Room ID validation
+    if (!formData.roomId.trim()) {
+      newErrors.roomId = 'Room ID is required';
+    } else if (formData.roomId.trim().length < 3) {
+      newErrors.roomId = 'Room ID must be at least 3 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const checkRoomExists = (roomId: string): boolean => {
+    // Simulate checking if room exists
+    return existingRooms.includes(roomId.toUpperCase());
+  };
+
+  const handleJoin = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsJoining(true);
+    
+    try {
+      // Simulate API call to check room existence
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      const roomExists = checkRoomExists(formData.roomId);
+      
+      if (!roomExists) {
+        setErrors({
+          general: 'Room not found. Please check the Room ID and try again.'
+        });
+        setIsJoining(false);
+        return;
+      }
+      
+      console.log('Joining room:', {
+        username: formData.username.trim(),
+        roomId: formData.roomId.toUpperCase()
+      });
+      
+      setJoinSuccess(true);
+      
+      // Reset form after success
+      setTimeout(() => {
+        setJoinSuccess(false);
+        setFormData({
+          username: '',
+          roomId: ''
+        });
+      }, 3000);
+      
+    } catch (error) {
+      setErrors({
+        general: 'Failed to join room. Please try again.'
+      });
+      console.error('Error joining room:', error);
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !isJoining) {
+      handleJoin();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
+            <LogIn className="w-6 h-6" />
+            Join Pomodoro Room
+          </CardTitle>
+          <CardDescription className="text-gray-600">
+            Enter your details to join an existing focus session
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          {joinSuccess && (
+            <Alert className="mb-6 border-green-200 bg-green-50">
+              <AlertDescription className="text-green-800">
+                Successfully joined the room! 🎉
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {errors.general && (
+            <Alert className="mb-6 border-red-200 bg-red-50">
+              <AlertCircle className="w-4 h-4" />
+              <AlertDescription className="text-red-800">
+                {errors.general}
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          <div className="space-y-6">
+            {/* Username Field */}
+            <div className="space-y-2">
+              <Label htmlFor="join-username" className="flex items-center gap-2 text-sm font-medium">
+                <User className="w-4 h-4" />
+                Username / Display Name *
+              </Label>
+              <Input
+                id="join-username"
+                type="text"
+                placeholder="Enter your display name"
+                value={formData.username}
+                onChange={(e) => handleInputChange('username', e.target.value)}
+                onKeyPress={handleKeyPress}
+                className={errors.username ? 'border-red-500 focus:border-red-500' : ''}
+                disabled={isJoining}
+              />
+              {errors.username && (
+                <p className="text-sm text-red-600">{errors.username}</p>
+              )}
+            </div>
+
+            {/* Room ID Field */}
+            <div className="space-y-2">
+              <Label htmlFor="join-roomId" className="flex items-center gap-2 text-sm font-medium">
+                <Hash className="w-4 h-4" />
+                Room ID *
+              </Label>
+              <Input
+                id="join-roomId"
+                type="text"
+                placeholder="Enter room ID (e.g., ABC123)"
+                value={formData.roomId}
+                onChange={(e) => handleInputChange('roomId', e.target.value.toUpperCase())}
+                onKeyPress={handleKeyPress}
+                className={errors.roomId ? 'border-red-500 focus:border-red-500' : ''}
+                disabled={isJoining}
+                style={{ textTransform: 'uppercase' }}
+              />
+              {errors.roomId && (
+                <p className="text-sm text-red-600">{errors.roomId}</p>
+              )}
+              <p className="text-xs text-gray-500">
+                Get the Room ID from the room creator
+              </p>
+            </div>
+
+            {/* Join Button */}
+            <Button
+              onClick={handleJoin}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+              disabled={isJoining}
+            >
+              {isJoining ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Joining Room...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Join Room
+                </div>
+              )}
+            </Button>
+
+            {/* Demo Room IDs for testing */}
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+              <p className="text-xs font-medium text-gray-700 mb-2">Demo Room IDs for testing:</p>
+              <div className="flex flex-wrap gap-2">
+                {existingRooms.map(roomId => (
+                  <Button
+                    key={roomId}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-7 px-2"
+                    onClick={() => handleInputChange('roomId', roomId)}
+                    disabled={isJoining}
+                  >
+                    {roomId}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <p className="text-xs text-gray-500 text-center">
+              * Required fields • Press Enter to join
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default JoinRoom;

@@ -1,26 +1,53 @@
+// Collective.tsx
 import DigitalTimer from "../pages/DigitalTimer";
 import FocusStatsChart from "../pages/FocusStatsChart";
 import TaskList from "../pages/Tasklist";
 
-export default function collect() {
+interface CollectProps {
+  time: number;
+  isRunning: boolean;
+  mode: "pomodoro" | "shortBreak" | "longBreak";
+  onStart: () => void;
+  onPause: () => void;
+  onReset: () => void;
+  onAdjustTime: (delta: number) => void;
+  onModeChange: (mode: "pomodoro" | "shortBreak" | "longBreak") => void;
+}
+
+export default function Collect({
+  time,
+  isRunning,
+  mode,
+  onStart,
+  onPause,
+  onReset,
+  onAdjustTime,
+  onModeChange
+}: CollectProps) {
   return (
     <div className="min-h-screen bg-gray-50 p-2">
       <div className="max-w-7xl mx-auto h-screen">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 h-full">
-          
-          {/* Left Sidebar - Compact */}
+          {/* Left Sidebar */}
           <div className="lg:col-span-4 space-y-3 flex flex-col">
-            {/* Timer - Reduced padding */}
+            {/* Digital Timer */}
             <div className="bg-white rounded-lg shadow-sm border p-3 flex-shrink-0">
-              <DigitalTimer />
+              <DigitalTimer
+                time={time}
+                isRunning={isRunning}
+                onStart={onStart}
+                onPause={onPause}
+                onReset={onReset}
+                onAdjustTime={onAdjustTime}
+              />
             </div>
 
-            {/* Task List - Flexible height */}
+            {/* Task List */}
             <div className="bg-white rounded-lg shadow-sm border p-3 flex-1 min-h-0 overflow-hidden">
               <TaskList />
             </div>
 
-            {/* Placeholder - Minimal height */}
+            {/* Placeholder */}
             <div className="bg-white rounded-lg shadow-sm border p-3 h-24 flex-shrink-0">
               <div className="h-full flex items-center justify-center text-gray-400 text-sm">
                 Future Component
@@ -28,13 +55,12 @@ export default function collect() {
             </div>
           </div>
 
-          {/* Main Content / Charts - Full height */}
+          {/* Main Content / Charts */}
           <div className="lg:col-span-8">
             <div className="bg-white rounded-lg shadow-sm border p-4 h-full">
               <FocusStatsChart />
             </div>
           </div>
-
         </div>
       </div>
     </div>

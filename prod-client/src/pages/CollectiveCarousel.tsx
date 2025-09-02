@@ -1,3 +1,5 @@
+// CollectiveCarousel.tsx
+import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 // @ts-ignore
@@ -10,34 +12,60 @@ import "swiper/css/pagination";
 import Timer from "./Timer";
 import Collect from "./Collective";
 
-export default function CollectiveCarousel() {
+interface CarouselProps {
+  time: number;
+  isRunning: boolean;
+  mode: "pomodoro" | "shortBreak" | "longBreak";
+  onStart: () => void;
+  onPause: () => void;
+  onReset: () => void;
+  onAdjustTime: (delta: number) => void;
+  onModeChange: (mode: "pomodoro" | "shortBreak" | "longBreak") => void;
+}
+
+export default function CollectiveCarousel({
+  time,
+  isRunning,
+  mode,
+  onStart,
+  onPause,
+  onReset,
+  onAdjustTime,
+  onModeChange
+}: CarouselProps) {
   return (
     <div className="fixed inset-0 bg-gray-50">
-      <Swiper
-        modules={[Navigation, Pagination]}
-        navigation={false}
-        pagination={false}
-        spaceBetween={0}
-        slidesPerView={1}
-        className="w-full h-full"
-      >
-
-
+      <Swiper modules={[Navigation, Pagination]} navigation={false} pagination={false} spaceBetween={0} slidesPerView={1} className="w-full h-full">
+        {/* Slide 1: Circular Timer */}
         <SwiperSlide>
           <div className="w-full h-full bg-gray-900">
-            <Timer />
+            <Timer
+              time={time}
+              isRunning={isRunning}
+              mode={mode}
+              onStart={onStart}
+              onPause={onPause}
+              onReset={onReset}
+              onModeChange={onModeChange}
+            />
           </div>
         </SwiperSlide>
 
-        {/* Slide 2: Complete Dashboard */}
+        {/* Slide 2: Full Dashboard */}
         <SwiperSlide>
-          <div className="w-full h-full p-4 overflow-auto">
-            <div className="w-full h-full">
-              <Collect />
-            </div>
+          <div className="w-full h-full p-4 overflow-auto bg-gray-50">
+            <Collect
+              time={time}
+              isRunning={isRunning}
+              mode={mode}
+              onStart={onStart}
+              onPause={onPause}
+              onReset={onReset}
+              onAdjustTime={onAdjustTime}
+              onModeChange={onModeChange}
+            />
           </div>
         </SwiperSlide>
-        
       </Swiper>
     </div>
   );
