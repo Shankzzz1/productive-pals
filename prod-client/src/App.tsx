@@ -10,6 +10,7 @@ import CollectiveCarousel from "./pages/CollectiveCarousel";
 import useTimer from "./Hook/useTimer"; // ⬅️ custom hook
 import type { JSX } from "react";
 import CreateRoom from "./pages/CreateRoom";
+import JoinRoom from "./pages/JoinRoom";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem("token");
@@ -27,6 +28,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/create" element={<CreateRoom />} />
+        <Route path="/join" element={<JoinRoom />} />
         <Route
           path="/digital"
           element={

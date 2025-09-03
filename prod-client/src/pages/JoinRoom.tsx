@@ -128,7 +128,7 @@ const JoinRoom: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
@@ -208,7 +208,7 @@ const JoinRoom: React.FC = () => {
             {/* Join Button */}
             <Button
               onClick={handleJoin}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="w-full bg-black hover:bg-gray-800 text-white"
               disabled={isJoining}
             >
               {isJoining ? (
@@ -223,25 +223,6 @@ const JoinRoom: React.FC = () => {
                 </div>
               )}
             </Button>
-
-            {/* Demo Room IDs for testing */}
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-xs font-medium text-gray-700 mb-2">Demo Room IDs for testing:</p>
-              <div className="flex flex-wrap gap-2">
-                {existingRooms.map(roomId => (
-                  <Button
-                    key={roomId}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-7 px-2"
-                    onClick={() => handleInputChange('roomId', roomId)}
-                    disabled={isJoining}
-                  >
-                    {roomId}
-                  </Button>
-                ))}
-              </div>
-            </div>
           </div>
           
           <div className="mt-6 pt-4 border-t border-gray-200">

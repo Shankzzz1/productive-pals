@@ -149,16 +149,17 @@ const Home = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <a href='/task'>
+              <a href='/create'>
                 <button className="px-8 py-3 bg-blue-600 text-white rounded-md text-lg font-medium hover:bg-blue-700 transition-colors">
                   Create Study Room
                   <ArrowRight className="w-5 h-5 ml-2 inline" />
                 </button>
               </a>
-              
+              <a href='/join'>
               <button className="px-8 py-3 bg-white text-gray-700 border border-gray-300 rounded-md text-lg font-medium hover:bg-gray-50 transition-colors">
                 Join Room
               </button>
+              </a>
             </div>
 
             {/* Trust indicators */}
