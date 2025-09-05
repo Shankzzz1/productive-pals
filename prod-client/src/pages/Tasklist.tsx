@@ -74,7 +74,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
   return (
     <div
-      className={`group flex items-center space-x-3 p-4 rounded-lg border transition-all duration-300 ${
+      className={`group flex items-center space-x-3 p-3 rounded-lg border transition-all duration-300 ${
         task.completed
           ? "bg-green-50 border-green-200 opacity-75"
           : "bg-white border-gray-200 hover:border-gray-300"
@@ -89,9 +89,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
         }`}
       >
         {task.completed ? (
-          <CheckCircle2 className="w-6 h-6" />
+          <CheckCircle2 className="w-5 h-5" />
         ) : (
-          <Circle className="w-6 h-6" />
+          <Circle className="w-5 h-5" />
         )}
       </button>
 
@@ -104,22 +104,22 @@ const TaskItem: React.FC<TaskItemProps> = ({
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
               onKeyDown={handleKeyPress}
-              className="flex-1 px-3 py-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-2 py-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <Button
               size="sm"
               onClick={handleEdit}
-              className="h-8 w-8 p-0 bg-green-500 hover:bg-green-600"
+              className="h-7 w-7 p-0 bg-green-500 hover:bg-green-600"
             >
-              <Check className="w-4 h-4" />
+              <Check className="w-3 h-3" />
             </Button>
             <Button
               size="sm"
               variant="outline"
               onClick={handleCancel}
-              className="h-8 w-8 p-0 hover:bg-red-50"
+              className="h-7 w-7 p-0 hover:bg-red-50"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3 h-3" />
             </Button>
           </div>
         ) : (
@@ -134,22 +134,22 @@ const TaskItem: React.FC<TaskItemProps> = ({
       </div>
 
       {!isEditing && (
-        <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <Button
             size="sm"
             variant="ghost"
             onClick={() => setIsEditing(true)}
-            className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+            className="h-7 w-7 p-0 hover:bg-blue-50 hover:text-blue-600"
           >
-            <Edit3 className="w-4 h-4" />
+            <Edit3 className="w-3 h-3" />
           </Button>
           <Button
             size="sm"
             variant="ghost"
             onClick={() => onDelete(task._id)}
-            className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+            className="h-7 w-7 p-0 hover:bg-red-50 hover:text-red-600"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3 h-3" />
           </Button>
         </div>
       )}
@@ -414,12 +414,6 @@ const TaskList: React.FC = () => {
     window.location.href = '/login'; // Adjust this to your login route
   };
 
-  // const handleLogout = () => {
-  //   localStorage.removeItem("token");
-  //   setError("Logged out successfully");
-  //   setTasks([]);
-  // };
-
   const completedCount = tasks.filter((t) => t.completed).length;
   const totalCount = tasks.length;
   const progressPercentage =
@@ -427,13 +421,11 @@ const TaskList: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-md mx-auto p-4">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-500" />
-            <p className="text-gray-600">Loading tasks...</p>
-          </CardContent>
-        </Card>
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-500" />
+          <p className="text-gray-600 text-sm">Loading tasks...</p>
+        </div>
       </div>
     );
   }
@@ -442,176 +434,164 @@ const TaskList: React.FC = () => {
 
   if (!hasValidToken) {
     return (
-      <div className="max-w-md mx-auto p-4">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-            <div className="text-gray-600 mb-4 font-medium">
-              Authentication required
-            </div>
-            <p className="text-sm text-gray-500 mb-6">
-              Please login to access your tasks
-            </p>
-            <Button 
-              onClick={handleLoginRedirect}
-              className="flex items-center gap-2 mx-auto"
-            >
-              <LogIn className="w-4 h-4" />
-              Go to Login
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="h-full flex items-center justify-center p-4">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+          <div className="text-gray-600 mb-4 font-medium">
+            Authentication required
+          </div>
+          <p className="text-sm text-gray-500 mb-6">
+            Please login to access your tasks
+          </p>
+          <Button 
+            onClick={handleLoginRedirect}
+            className="flex items-center gap-2 mx-auto"
+          >
+            <LogIn className="w-4 h-4" />
+            Go to Login
+          </Button>
+        </div>
       </div>
     );
   }
 
   if (error && !hasValidToken) {
     return (
-      <div className="max-w-md mx-auto p-4">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <div className="text-red-500 mb-4 font-medium">{error}</div>
-            <div className="space-x-3">
-              <Button onClick={handleLoginRedirect} className="flex items-center gap-2">
-                <LogIn className="w-4 h-4" />
-                Login
-              </Button>
-              <Button onClick={fetchTasks} variant="outline" className="flex items-center gap-2">
-                <RefreshCw className="w-4 h-4" />
-                Retry
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="h-full flex items-center justify-center p-4">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <div className="text-red-500 mb-4 font-medium">{error}</div>
+          <div className="space-x-3">
+            <Button onClick={handleLoginRedirect} className="flex items-center gap-2">
+              <LogIn className="w-4 h-4" />
+              Login
+            </Button>
+            <Button onClick={fetchTasks} variant="outline" className="flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Retry
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto p-4">
-      <Card className="w-full">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between mb-2">
-            <CardTitle className="text-xl font-bold">Task List</CardTitle>
-            {/* <Button
-              onClick={handleLogout}
-              variant="outline"
-              size="sm"
-              className="text-xs"
-            > */}
-              {/* Logout
-            </Button> */}
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">
-              {completedCount}/{totalCount} completed
-            </span>
-          </div>
+    <div className="h-full flex flex-col">
+      {/* Header - Fixed */}
+      <div className="flex-shrink-0 mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-bold">Task List</h3>
+        </div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs text-gray-500">
+            {completedCount}/{totalCount} completed
+          </span>
+        </div>
 
-          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mt-2">
-            <div
-              className="h-full bg-gradient-to-r from-blue-400 to-green-500 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progressPercentage}%` }}
+        <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-3">
+          <div
+            className="h-full bg-gradient-to-r from-blue-400 to-green-500 rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progressPercentage}%` }}
+          />
+        </div>
+
+        {/* Add Task Section */}
+        {isAdding ? (
+          <div className="flex items-center space-x-2 p-3 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50 mb-3">
+            <input
+              ref={inputRef}
+              type="text"
+              value={newTaskText}
+              onChange={(e) => setNewTaskText(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder="Enter a new task..."
+              className="flex-1 px-2 py-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              disabled={operationLoading}
             />
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          {isAdding ? (
-            <div className="flex items-center space-x-2 p-4 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50 animate-in slide-in-from-top duration-300">
-              <input
-                ref={inputRef}
-                type="text"
-                value={newTaskText}
-                onChange={(e) => setNewTaskText(e.target.value)}
-                onKeyDown={handleKeyPress}
-                placeholder="Enter a new task..."
-                className="flex-1 px-3 py-2 text-sm border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                disabled={operationLoading}
-              />
-              <Button
-                onClick={addTask}
-                size="sm"
-                className="bg-green-500 hover:bg-green-600"
-                disabled={!newTaskText.trim() || operationLoading}
-              >
-                {operationLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Check className="w-4 h-4" />
-                )}
-              </Button>
-              <Button
-                onClick={() => {
-                  setIsAdding(false);
-                  setNewTaskText("");
-                }}
-                size="sm"
-                variant="outline"
-                className="hover:bg-red-50"
-                disabled={operationLoading}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          ) : (
             <Button
-              onClick={startAdding}
+              onClick={addTask}
+              size="sm"
+              className="bg-green-500 hover:bg-green-600 h-7 w-7 p-0"
+              disabled={!newTaskText.trim() || operationLoading}
+            >
+              {operationLoading ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <Check className="w-3 h-3" />
+              )}
+            </Button>
+            <Button
+              onClick={() => {
+                setIsAdding(false);
+                setNewTaskText("");
+              }}
+              size="sm"
               variant="outline"
-              className="w-full py-3 border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200"
+              className="hover:bg-red-50 h-7 w-7 p-0"
               disabled={operationLoading}
             >
-              <Plus className="w-5 h-5 mr-2" />
-              Add New Task
+              <X className="w-3 h-3" />
             </Button>
-          )}
-
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-center text-red-700 text-sm">
-                <AlertCircle className="w-4 h-4 mr-2" />
-                {error}
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-3">
-            {tasks.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <Circle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No tasks yet. Add one to get started!</p>
-              </div>
-            ) : (
-              tasks.map((task, index) => (
-                <div
-                  key={task._id}
-                  className="animate-in slide-in-from-right duration-300"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <TaskItem
-                    task={task}
-                    onToggle={toggleTask}
-                    onDelete={deleteTask}
-                    onEdit={editTask}
-                  />
-                </div>
-              ))
-            )}
           </div>
+        ) : (
+          <Button
+            onClick={startAdding}
+            variant="outline"
+            className="w-full py-2 mb-3 border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 text-sm"
+            disabled={operationLoading}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add New Task
+          </Button>
+        )}
 
-          {tasks.length > 0 && (
-            <div className="pt-4 border-t">
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>
-                  {tasks.filter((t) => !t.completed).length} remaining
-                </span>
-                <span>{completedCount} completed</span>
-              </div>
+        {error && (
+          <div className="p-2 bg-red-50 border border-red-200 rounded-lg mb-3">
+            <div className="flex items-center text-red-700 text-xs">
+              <AlertCircle className="w-3 h-3 mr-2" />
+              {error}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
+
+      {/* Task List - Scrollable */}
+      <div className={`flex-1 min-h-0 ${tasks.length > 3 ? 'overflow-y-auto' : ''} space-y-2`}>
+        {tasks.length === 0 ? (
+          <div className="text-center py-4 text-gray-500">
+            <Circle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No tasks yet. Add one to get started!</p>
+          </div>
+        ) : (
+          tasks.map((task, index) => (
+            <div
+              key={task._id}
+              className="animate-in slide-in-from-right duration-300"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <TaskItem
+                task={task}
+                onToggle={toggleTask}
+                onDelete={deleteTask}
+                onEdit={editTask}
+              />
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Footer Stats - Fixed */}
+      {tasks.length > 0 && (
+        <div className="flex-shrink-0 pt-3 border-t mt-3">
+          <div className="flex justify-between text-xs text-gray-600">
+            <span>
+              {tasks.filter((t) => !t.completed).length} remaining
+            </span>
+            <span>{completedCount} completed</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
