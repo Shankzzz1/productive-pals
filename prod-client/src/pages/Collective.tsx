@@ -13,6 +13,9 @@ interface CollectProps {
   onReset: () => void;
   onAdjustTime: (delta: number) => void;
   onModeChange: (mode: "pomodoro" | "shortBreak" | "longBreak") => void;
+  participants?: string[];
+  participantUsernames?: string[];
+  currentUsername?: string;
 }
 
 export default function Collect({
@@ -23,8 +26,11 @@ export default function Collect({
   onPause,
   onReset,
   onAdjustTime,
-}: // onModeChange
-CollectProps) {
+  // onModeChange
+  participants = [],
+  participantUsernames = [],
+  currentUsername
+}: CollectProps) {
   return (
     <div className="min-h-screen bg-gray-50 p-2">
       <div className="max-w-7xl mx-auto h-screen">
@@ -50,7 +56,11 @@ CollectProps) {
 
             {/* Room Members */}
             <div className="bg-white rounded-lg shadow-sm border p-3 flex-shrink-0">
-              <RoomMembers />
+              <RoomMembers 
+                participants={participants}
+                participantUsernames={participantUsernames}
+                currentUsername={currentUsername}
+              />
             </div>
           </div>
 

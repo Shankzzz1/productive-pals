@@ -20,6 +20,9 @@ interface CarouselProps {
   onReset: () => void;
   onAdjustTime: (delta: number) => void;
   onModeChange: (mode: "pomodoro" | "shortBreak" | "longBreak") => void;
+  participants?: string[];
+  participantUsernames?: string[];
+  currentUsername?: string;
 }
 
 export default function CollectiveCarousel({
@@ -30,7 +33,10 @@ export default function CollectiveCarousel({
   onPause,
   onReset,
   onAdjustTime,
-  onModeChange
+  onModeChange,
+  participants = [],
+  participantUsernames = [],
+  currentUsername
 }: CarouselProps) {
   return (
     <div className="fixed inset-0 bg-gray-50">
@@ -62,6 +68,9 @@ export default function CollectiveCarousel({
               onReset={onReset}
               onAdjustTime={onAdjustTime}
               onModeChange={onModeChange}
+              participants={participants}
+              participantUsernames={participantUsernames}
+              currentUsername={currentUsername}
             />
           </div>
         </SwiperSlide>

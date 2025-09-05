@@ -39,6 +39,7 @@ interface RoomState {
   startAtEpochMs?: number;
   baseDurationSeconds: number;
   participants: Set<string>;
+  participantUsernames: Map<string, string>; // socketId -> username mapping
   roomName?: string;
 }
 
@@ -71,7 +72,8 @@ const broadcastTimerUpdate = (roomId: string) => {
     remainingSeconds: currentRemaining,
     baseDurationSeconds: room.baseDurationSeconds,
     startAtEpochMs: room.startAtEpochMs,
-    participants: Array.from(room.participants)
+    participants: Array.from(room.participants),
+    participantUsernames: Array.from(room.participantUsernames.values())
   });
 };
 
@@ -94,7 +96,8 @@ io.on('connection', (socket) => {
         remainingSeconds: pomoDuration,
         isRunning: false,
         baseDurationSeconds: pomoDuration,
-        participants: new Set([socket.id])
+        participants: new Set([socket.id]),
+        participantUsernames: new Map([[socket.id, username]])
       });
 
       socket.join(roomId);
@@ -116,6 +119,7 @@ io.on('connection', (socket) => {
       }
 
       room.participants.add(socket.id);
+      room.participantUsernames.set(socket.id, username);
       socket.join(roomId);
       
       ack({ 
@@ -127,13 +131,15 @@ io.on('connection', (socket) => {
           remainingSeconds: getCurrentRemainingSeconds(room),
           baseDurationSeconds: room.baseDurationSeconds,
           startAtEpochMs: room.startAtEpochMs,
-          participants: Array.from(room.participants)
+          participants: Array.from(room.participants),
+          participantUsernames: Array.from(room.participantUsernames.values())
         }
       });
       
       // Notify others about new participant
       socket.to(roomId).emit('presence_update', {
-        participants: Array.from(room.participants)
+        participants: Array.from(room.participants),
+        participantUsernames: Array.from(room.participantUsernames.values())
       });
       
       console.log(`${username} joined room ${roomId}`);
@@ -146,6 +152,7 @@ io.on('connection', (socket) => {
     const room = rooms.get(roomId);
     if (room) {
       room.participants.delete(socket.id);
+      room.participantUsernames.delete(socket.id);
       socket.leave(roomId);
       
       if (room.participants.size === 0) {
@@ -153,7 +160,8 @@ io.on('connection', (socket) => {
         console.log(`Room ${roomId} deleted (empty)`);
       } else {
         socket.to(roomId).emit('presence_update', {
-          participants: Array.from(room.participants)
+          participants: Array.from(room.participants),
+          participantUsernames: Array.from(room.participantUsernames.values())
         });
       }
     }
@@ -169,7 +177,8 @@ io.on('connection', (socket) => {
         remainingSeconds: getCurrentRemainingSeconds(room),
         baseDurationSeconds: room.baseDurationSeconds,
         startAtEpochMs: room.startAtEpochMs,
-        participants: Array.from(room.participants)
+        participants: Array.from(room.participants),
+        participantUsernames: Array.from(room.participantUsernames.values())
       });
     }
   });
@@ -231,12 +240,14 @@ io.on('connection', (socket) => {
     for (const [roomId, room] of rooms.entries()) {
       if (room.participants.has(socket.id)) {
         room.participants.delete(socket.id);
+        room.participantUsernames.delete(socket.id);
         if (room.participants.size === 0) {
           rooms.delete(roomId);
           console.log(`Room ${roomId} deleted (empty)`);
         } else {
           socket.to(roomId).emit('presence_update', {
-            participants: Array.from(room.participants)
+            participants: Array.from(room.participants),
+            participantUsernames: Array.from(room.participantUsernames.values())
           });
         }
       }

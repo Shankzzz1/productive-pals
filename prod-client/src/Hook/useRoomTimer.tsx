@@ -26,6 +26,7 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState<Mode>("pomodoro");
   const [participants, setParticipants] = useState<string[]>([]);
+  const [participantUsernames, setParticipantUsernames] = useState<string[]>([]);
 
   const modeTimes: Record<Mode, number> = {
     pomodoro: 1500,
@@ -131,10 +132,12 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
       setIsRunning(data.isRunning);
       setTime(data.remainingSeconds);
       setParticipants(data.participants || []);
+      setParticipantUsernames(data.participantUsernames || []);
     };
 
     const handlePresenceUpdate = (data: any) => {
       setParticipants(data.participants || []);
+      setParticipantUsernames(data.participantUsernames || []);
     };
 
     // Connect and subscribe to events
@@ -213,6 +216,7 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
       isRunning,
       mode,
       participants: [],
+      participantUsernames: [],
       onStart,
       onPause,
       onReset,
@@ -262,6 +266,7 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
     isRunning,
     mode,
     participants,
+    participantUsernames,
     onStart,
     onPause,
     onReset,

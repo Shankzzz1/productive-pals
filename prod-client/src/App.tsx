@@ -72,6 +72,9 @@ function App() {
                   onReset={timer.onReset}
                   onAdjustTime={timer.onAdjustTime}
                   onModeChange={timer.onModeChange}
+                  participants={timer.participants || []}
+                  participantUsernames={timer.participantUsernames || []}
+                  currentUsername={localStorage.getItem('username') || undefined}
                 />
               )}
             </TimerProvider>
