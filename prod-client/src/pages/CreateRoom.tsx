@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User, Hash, Clock, Shuffle } from 'lucide-react';
+import { createRoom } from '../lib/socket';
 
 interface FormData {
   username: string;
@@ -16,9 +18,11 @@ interface FormErrors {
   username?: string;
   roomName?: string;
   pomoDuration?: string;
+  general?: string;
 }
 
 const CreateRoom: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     username: '',
     roomName: '',
@@ -84,32 +88,39 @@ const CreateRoom: React.FC = () => {
 
     setIsSubmitting(true);
     
-    // Simulate API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       const roomId = formData.roomName.trim() || generateRoomId();
+      const duration = formData.pomoDuration * 60; // convert to seconds
       
-      console.log('Room created:', {
-        username: formData.username.trim(),
+      const result = await createRoom({
         roomId,
-        pomoDuration: formData.pomoDuration
+        username: formData.username.trim(),
+        duration
       });
       
-      setSubmitSuccess(true);
+      if (result.ok) {
+        // Store room info for the timer
+        localStorage.setItem('roomId', roomId);
+        localStorage.setItem('username', formData.username.trim());
+        
+        setSubmitSuccess(true);
+        
+        // Navigate to /collect after a brief delay
+        setTimeout(() => {
+          navigate('/collect', { 
+            state: { 
+              roomId, 
+              username: formData.username.trim() 
+            } 
+          });
+        }, 1500);
+      } else {
+        setErrors({ general: result.error || 'Failed to create room' });
+      }
       
-      // Reset form after success
-      setTimeout(() => {
-        setSubmitSuccess(false);
-        setFormData({
-          username: '',
-          roomName: '',
-          pomoDuration: 25
-        });
-      }, 3000);
-      
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating room:', error);
+      setErrors({ general: error.message || 'Failed to create room' });
     } finally {
       setIsSubmitting(false);
     }
@@ -139,6 +150,14 @@ const CreateRoom: React.FC = () => {
             <Alert className="mb-6 border-green-200 bg-green-50">
               <AlertDescription className="text-green-800">
                 Room created successfully! 🍅
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {errors.general && (
+            <Alert className="mb-6 border-red-200 bg-red-50">
+              <AlertDescription className="text-red-800">
+                {errors.general}
               </AlertDescription>
             </Alert>
           )}

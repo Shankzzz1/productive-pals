@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User, Hash, LogIn, AlertCircle } from 'lucide-react';
+import { joinRoom } from '../lib/socket';
 
 interface JoinFormData {
   username: string;
@@ -18,6 +20,7 @@ interface FormErrors {
 }
 
 const JoinRoom: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<JoinFormData>({
     username: '',
     roomId: ''
@@ -26,9 +29,6 @@ const JoinRoom: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isJoining, setIsJoining] = useState(false);
   const [joinSuccess, setJoinSuccess] = useState(false);
-
-  // Simulate existing rooms for validation
-  const existingRooms = ['ABC123', 'XYZ789', 'FOCUS1', 'STUDY2', 'WORK99'];
 
   const handleInputChange = (field: keyof JoinFormData, value: string) => {
     setFormData(prev => ({
@@ -69,11 +69,6 @@ const JoinRoom: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const checkRoomExists = (roomId: string): boolean => {
-    // Simulate checking if room exists
-    return existingRooms.includes(roomId.toUpperCase());
-  };
-
   const handleJoin = async () => {
     if (!validateForm()) {
       return;
@@ -82,40 +77,38 @@ const JoinRoom: React.FC = () => {
     setIsJoining(true);
     
     try {
-      // Simulate API call to check room existence
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const result = await joinRoom({
+        roomId: formData.roomId.toUpperCase(),
+        username: formData.username.trim()
+      });
       
-      const roomExists = checkRoomExists(formData.roomId);
-      
-      if (!roomExists) {
+      if (result.ok) {
+        // Store room info for the timer
+        localStorage.setItem('roomId', formData.roomId.toUpperCase());
+        localStorage.setItem('username', formData.username.trim());
+        
+        setJoinSuccess(true);
+        
+        // Navigate to /collect after a brief delay
+        setTimeout(() => {
+          navigate('/collect', { 
+            state: { 
+              roomId: formData.roomId.toUpperCase(), 
+              username: formData.username.trim() 
+            } 
+          });
+        }, 1500);
+      } else {
         setErrors({
-          general: 'Room not found. Please check the Room ID and try again.'
+          general: result.error || 'Room not found. Please check the Room ID and try again.'
         });
-        setIsJoining(false);
-        return;
       }
       
-      console.log('Joining room:', {
-        username: formData.username.trim(),
-        roomId: formData.roomId.toUpperCase()
-      });
-      
-      setJoinSuccess(true);
-      
-      // Reset form after success
-      setTimeout(() => {
-        setJoinSuccess(false);
-        setFormData({
-          username: '',
-          roomId: ''
-        });
-      }, 3000);
-      
-    } catch (error) {
-      setErrors({
-        general: 'Failed to join room. Please try again.'
-      });
+    } catch (error: any) {
       console.error('Error joining room:', error);
+      setErrors({
+        general: error.message || 'Failed to join room. Please try again.'
+      });
     } finally {
       setIsJoining(false);
     }
