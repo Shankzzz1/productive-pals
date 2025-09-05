@@ -2,6 +2,7 @@
 import DigitalTimer from "../pages/DigitalTimer";
 import FocusStatsChart from "../pages/FocusStatsChart";
 import TaskList from "../pages/Tasklist";
+import RoomMembers from "./RoomMembers";
 
 interface CollectProps {
   time: number;
@@ -22,8 +23,8 @@ export default function Collect({
   onPause,
   onReset,
   onAdjustTime,
-  // onModeChange
-}: CollectProps) {
+}: // onModeChange
+CollectProps) {
   return (
     <div className="min-h-screen bg-gray-50 p-2">
       <div className="max-w-7xl mx-auto h-screen">
@@ -47,11 +48,9 @@ export default function Collect({
               <TaskList />
             </div>
 
-            {/* Placeholder */}
-            <div className="bg-white rounded-lg shadow-sm border p-3 h-24 flex-shrink-0">
-              <div className="h-full flex items-center justify-center text-gray-400 text-sm">
-                Future Component
-              </div>
+            {/* Room Members */}
+            <div className="bg-white rounded-lg shadow-sm border p-3 flex-shrink-0">
+              <RoomMembers />
             </div>
           </div>
 

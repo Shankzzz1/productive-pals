@@ -12,6 +12,7 @@ import {
   adjustTime as socketAdjustTime,
   requestSync
 } from "../lib/socket";
+import axios from "axios";
 
 type Mode = "pomodoro" | "shortBreak" | "longBreak";
 
@@ -44,6 +45,37 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
     mode: "pomodoro"
   });
 
+  // Track elapsed time for saving focus sessions
+  const elapsedRef = useRef(0);
+
+  // Save focus session to backend
+  const saveSession = async (completed: boolean) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      await axios.post(
+        "http://localhost:5000/api/focus",
+        {
+          duration: elapsedRef.current, // actual time spent
+          mode,
+          completed,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      console.log(
+        `✅ Focus session stored (${elapsedRef.current}s, completed: ${completed})`
+      );
+
+      if (completed) {
+        elapsedRef.current = 0; // reset after full save
+      }
+    } catch (err) {
+      console.error("❌ Failed to save session", err);
+    }
+  };
+
   // Local countdown effect for smooth UI updates
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -52,8 +84,13 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
       interval = setInterval(() => {
         setTime((prev) => {
           const newTime = prev - 1;
+          elapsedRef.current += 1; // Track elapsed time
           if (newTime <= 0) {
             setIsRunning(false);
+            // Save when timer completes
+            if (elapsedRef.current > 0) {
+              saveSession(true);
+            }
           }
           return newTime;
         });
@@ -64,6 +101,17 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
       if (interval) clearInterval(interval);
     };
   }, [isRunning, time]);
+
+  // Auto-save progress every 10 seconds for room timers
+  useEffect(() => {
+    if (!isRunning || !roomId) return;
+    const saveInterval = setInterval(() => {
+      if (elapsedRef.current > 0) {
+        saveSession(false); // partial progress
+      }
+    }, 10000);
+    return () => clearInterval(saveInterval);
+  }, [isRunning, roomId]);
 
   // Handle timer updates from server
   useEffect(() => {
@@ -105,10 +153,8 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
 
   // If no roomId, fall back to local timer behavior
   if (!roomId) {
-    // This is the original useTimer logic for non-room usage
-    const elapsedRef = useRef(0);
-
-    // countdown effect
+    // Use the existing elapsedRef and saveSession from above
+    // countdown effect for local timer
     useEffect(() => {
       let interval: NodeJS.Timeout | null = null;
       if (isRunning && time > 0) {
@@ -118,26 +164,35 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
         }, 1000);
       } else if (time === 0) {
         setIsRunning(false);
+        // Save when timer completes
+        if (elapsedRef.current > 0) {
+          saveSession(true);
+        }
       }
       return () => {
         if (interval) clearInterval(interval);
       };
     }, [isRunning, time]);
 
-    // auto-save progress every 5 seconds (original logic)
+    // auto-save progress every 10 seconds for local timer
     useEffect(() => {
       if (!isRunning) return;
       const saveInterval = setInterval(() => {
         if (elapsedRef.current > 0) {
-          // Save session logic would go here
-          console.log(`Local timer progress: ${elapsedRef.current}s`);
+          saveSession(false); // partial progress
         }
-      }, 5000);
+      }, 10000);
       return () => clearInterval(saveInterval);
     }, [isRunning]);
 
     const onStart = () => setIsRunning(true);
-    const onPause = () => setIsRunning(false);
+    const onPause = () => {
+      setIsRunning(false);
+      // Save progress when paused (even small amounts)
+      if (elapsedRef.current > 0) {
+        saveSession(false);
+      }
+    };
     const onReset = () => {
       setIsRunning(false);
       setTime(modeTimes[mode]);
@@ -176,6 +231,10 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
   const onPause = () => {
     if (roomId) {
       socketPauseTimer(roomId);
+      // Save progress when paused (even small amounts) for room timers
+      if (elapsedRef.current > 0) {
+        saveSession(false);
+      }
     }
   };
 
@@ -183,6 +242,7 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
     if (roomId) {
       socketResetTimer(roomId);
     }
+    elapsedRef.current = 0; // Reset elapsed time
   };
 
   const onAdjustTime = (delta: number) => {

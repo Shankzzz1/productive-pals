@@ -34,14 +34,14 @@ export default function useTimer() {
     };
   }, [isRunning, time]);
 
-  // auto-save progress every 5 seconds
+  // auto-save progress every 10 seconds (more frequent saves)
   useEffect(() => {
     if (!isRunning) return;
     const saveInterval = setInterval(() => {
       if (elapsedRef.current > 0) {
         saveSession(false); // partial progress
       }
-    }, 5000);
+    }, 10000); // Changed from 5000 to 10000ms (10 seconds)
     return () => clearInterval(saveInterval);
   }, [isRunning]);
 
@@ -75,7 +75,13 @@ export default function useTimer() {
 
   // controls
   const onStart = () => setIsRunning(true);
-  const onPause = () => setIsRunning(false);
+  const onPause = () => {
+    setIsRunning(false);
+    // Save progress when paused (even small amounts)
+    if (elapsedRef.current > 0) {
+      saveSession(false);
+    }
+  };
   const onReset = () => {
     setIsRunning(false);
     setTime(modeTimes[mode]);

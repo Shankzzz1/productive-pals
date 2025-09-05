@@ -106,7 +106,7 @@ const LoginPage: React.FC = () => {
       console.log("Login successful:", data);
       alert("Login successful!");
       localStorage.setItem("token", data.token); // Save JWT
-      navigate("/task");
+      navigate("/");
     } catch (error: any) {
       setErrors({ general: error.message });
     } finally {
