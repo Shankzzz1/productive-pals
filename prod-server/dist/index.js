@@ -12,6 +12,7 @@ const socket_io_1 = require("socket.io");
 const RegUserRoutes_1 = __importDefault(require("./routes/RegUserRoutes"));
 const taskRoutes_1 = __importDefault(require("./routes/taskRoutes"));
 const focusRoutes_1 = __importDefault(require("./routes/focusRoutes"));
+const roomRoutes_1 = __importDefault(require("./routes/roomRoutes"));
 // Load environment variables
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -232,6 +233,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", RegUserRoutes_1.default);
 app.use("/api/tasks", taskRoutes_1.default);
 app.use("/api/focus", focusRoutes_1.default);
+app.use("/api/rooms", roomRoutes_1.default);
 // Start server
 server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

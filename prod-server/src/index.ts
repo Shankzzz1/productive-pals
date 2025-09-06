@@ -7,6 +7,7 @@ import { Server } from "socket.io";
 import userRoutes from "./routes/RegUserRoutes";
 import taskRoutes  from "./routes/taskRoutes";
 import focusRoutes from "./routes/focusRoutes";
+import roomRoutes from "./routes/roomRoutes";
 
 // Load environment variables
 dotenv.config();
@@ -266,6 +267,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/focus", focusRoutes);
+app.use("/api/rooms", roomRoutes);
 
 // Start server
 server.listen(PORT, () => {

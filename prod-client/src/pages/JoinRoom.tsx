@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User, Hash, LogIn, AlertCircle } from 'lucide-react';
-import { joinRoom } from '../lib/socket';
+import { joinRoomHTTP } from '../lib/roomAPI';
 
 interface JoinFormData {
   username: string;
@@ -28,7 +28,6 @@ const JoinRoom: React.FC = () => {
   
   const [errors, setErrors] = useState<FormErrors>({});
   const [isJoining, setIsJoining] = useState(false);
-  const [joinSuccess, setJoinSuccess] = useState(false);
 
   const handleInputChange = (field: keyof JoinFormData, value: string) => {
     setFormData(prev => ({
@@ -77,7 +76,7 @@ const JoinRoom: React.FC = () => {
     setIsJoining(true);
     
     try {
-      const result = await joinRoom({
+      const result = await joinRoomHTTP({
         roomId: formData.roomId.toUpperCase(),
         username: formData.username.trim()
       });
@@ -87,17 +86,13 @@ const JoinRoom: React.FC = () => {
         localStorage.setItem('roomId', formData.roomId.toUpperCase());
         localStorage.setItem('username', formData.username.trim());
         
-        setJoinSuccess(true);
-        
-        // Navigate to /collect after a brief delay
-        setTimeout(() => {
-          navigate('/collect', { 
-            state: { 
-              roomId: formData.roomId.toUpperCase(), 
-              username: formData.username.trim() 
-            } 
-          });
-        }, 1500);
+        // Navigate to /collect immediately after success
+        navigate('/collect', { 
+          state: { 
+            roomId: formData.roomId.toUpperCase(), 
+            username: formData.username.trim() 
+          } 
+        });
       } else {
         setErrors({
           general: result.error || 'Room not found. Please check the Room ID and try again.'
@@ -134,13 +129,6 @@ const JoinRoom: React.FC = () => {
         </CardHeader>
         
         <CardContent>
-          {joinSuccess && (
-            <Alert className="mb-6 border-green-200 bg-green-50">
-              <AlertDescription className="text-green-800">
-                Successfully joined the room! 🎉
-              </AlertDescription>
-            </Alert>
-          )}
 
           {errors.general && (
             <Alert className="mb-6 border-red-200 bg-red-50">
