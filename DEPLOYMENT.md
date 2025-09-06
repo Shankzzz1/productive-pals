@@ -28,7 +28,7 @@ NODE_ENV=production
    - Replace `<password>` with your database user password
 
 2. **CLIENT_URL**: 
-   - This will be your Vercel frontend URL (e.g., `https://productive-pals.vercel.app`)
+   - This will be your Vercel frontend URL (e.g., `https://productive-pals-prod-client-ywt5.vercel.app`)
    - Set this after your first deployment
 
 3. **JWT_SECRET**: 
@@ -126,6 +126,27 @@ npm run dev
 2. **Test Features**: Verify all features work correctly
 3. **Monitor Logs**: Check Vercel function logs for any issues
 4. **Database**: Ensure your MongoDB Atlas cluster is properly configured
+
+## URL Structure
+
+Once deployed, your application will be accessible at:
+
+- **Home**: `https://your-app-name.vercel.app/`
+- **Create Room**: `https://your-app-name.vercel.app/create`
+- **Join Room**: `https://your-app-name.vercel.app/join`
+- **Collective Timer**: `https://your-app-name.vercel.app/collect`
+- **Personal Timer**: `https://your-app-name.vercel.app/timer`
+- **Tasks**: `https://your-app-name.vercel.app/task`
+- **Stats**: `https://your-app-name.vercel.app/stats`
+- **Login**: `https://your-app-name.vercel.app/login`
+- **Register**: `https://your-app-name.vercel.app/register`
+
+### API Endpoints
+
+- **API Base**: `https://your-app-name.vercel.app/api/`
+- **Users**: `https://your-app-name.vercel.app/api/users/`
+- **Tasks**: `https://your-app-name.vercel.app/api/tasks`
+- **Focus**: `https://your-app-name.vercel.app/api/focus`
 
 ## Security Notes
 

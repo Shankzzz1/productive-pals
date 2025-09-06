@@ -19,8 +19,16 @@
       "dest": "prod-server/src/index.ts"
     },
     {
+      "src": "/static/(.*)",
+      "dest": "prod-client/dist/static/$1"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "prod-client/dist/assets/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "prod-client/dist/$1"
+      "dest": "prod-client/dist/index.html"
     }
   ],
   "env": {
