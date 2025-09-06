@@ -1,18 +1,9 @@
-import { Clock, CheckSquare, Heart, Github, Users, Zap, Trophy, Star, ArrowRight, Play, Menu, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Clock, CheckSquare, Heart, Github, Users, Zap, Trophy, Star, ArrowRight, Menu, X } from 'lucide-react';
+import { useState } from 'react';
 
 const Home = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [activeFeature, setActiveFeature] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    setIsVisible(true);
-    const interval = setInterval(() => {
-      setActiveFeature(prev => (prev + 1) % 5);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
 
   const features = [
     { 
