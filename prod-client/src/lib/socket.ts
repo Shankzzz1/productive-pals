@@ -17,7 +17,10 @@ export const connectIfNeeded = (): Socket => {
   if (!socket) {
     socket = io(getServerUrl(), {
       autoConnect: false,
-      withCredentials: true
+      withCredentials: true,
+      transports: ['polling'], // Use polling instead of websockets for serverless
+      upgrade: false, // Disable transport upgrades
+      rememberUpgrade: false
     });
   }
   

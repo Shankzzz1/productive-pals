@@ -29,7 +29,9 @@ const io = new Server(server, {
   cors: {
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true
-  }
+  },
+  transports: ['polling'], // Force polling for serverless compatibility
+  allowEIO3: true // Allow Engine.IO v3 for better compatibility
 });
 
 // Room-based timer state management

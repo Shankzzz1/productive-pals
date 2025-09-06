@@ -104,8 +104,15 @@ productive-pals/
    - Check that credentials are properly configured
 
 4. **Socket.IO Issues**:
-   - Ensure both frontend and backend URLs are correct
-   - Check that Socket.IO is properly configured for production
+   - Socket.IO uses polling transport for serverless compatibility
+   - Real-time features work but with slight delay due to polling
+   - Check browser console for connection errors
+   - Verify Socket.IO routes are properly configured in vercel.json
+
+5. **404 Errors for Socket.IO**:
+   - Ensure `/socket.io/(.*)` route is configured in vercel.json
+   - Check that server function is properly deployed
+   - Verify Socket.IO client is using polling transport
 
 ### Useful Commands:
 

@@ -29,7 +29,9 @@ const io = new socket_io_1.Server(server, {
     cors: {
         origin: process.env.CLIENT_URL || 'http://localhost:5173',
         credentials: true
-    }
+    },
+    transports: ['polling'], // Force polling for serverless compatibility
+    allowEIO3: true // Allow Engine.IO v3 for better compatibility
 });
 const rooms = new Map();
 const modeTimes = {
