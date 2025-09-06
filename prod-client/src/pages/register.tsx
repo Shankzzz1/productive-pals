@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Github } from 'lucide-react';
 import {useNavigate} from "react-router-dom";
+import { getApiEndpoint, API_ENDPOINTS } from "@/lib/api";
 
 interface FormData {
   username: string;
@@ -96,7 +97,7 @@ const RegisterPage: React.FC = () => {
   setIsLoading(true);
 
   try {
-    const response = await fetch("http://localhost:5000/api/users/register", {
+    const response = await fetch(getApiEndpoint(API_ENDPOINTS.USERS.REGISTER), {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

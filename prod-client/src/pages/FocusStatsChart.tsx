@@ -23,6 +23,7 @@ import {
 } from "recharts";
 import { Clock, CheckCircle, TrendingUp, Trash2 } from "lucide-react";
 import axios from "axios";
+import { getApiEndpoint, API_ENDPOINTS } from "@/lib/api";
 
 interface FocusSession {
   id: string;
@@ -57,7 +58,7 @@ const FocusStatsChart = () => {
   // Fetch sessions from backend
   const fetchSessions = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/focus", {
+      const res = await axios.get(getApiEndpoint(API_ENDPOINTS.FOCUS), {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       const data = Array.isArray(res.data) ? res.data : [];
@@ -76,7 +77,7 @@ const FocusStatsChart = () => {
 
   const clearAllData = async () => {
     try {
-      await axios.delete("http://localhost:5000/api/focus", {
+      await axios.delete(getApiEndpoint(API_ENDPOINTS.FOCUS), {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setSessions([]);
