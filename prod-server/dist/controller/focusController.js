@@ -1,20 +1,14 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSessions = exports.saveSession = void 0;
-const FocusSession_1 = __importDefault(require("../model/FocusSession"));
-const Task_1 = __importDefault(require("../model/Task"));
-const saveSession = async (req, res) => {
+import FocusSession from "../model/FocusSession";
+import Task from "../model/Task";
+export const saveSession = async (req, res) => {
     try {
         const { mode, duration, category = "General" } = req.body;
         if (!mode || !duration) {
             return res.status(400).json({ message: "Mode and duration required" });
         }
         // Count completed tasks for this user
-        const tasksCompleted = await Task_1.default.countDocuments({ user: req.user._id, completed: true });
-        const session = await FocusSession_1.default.create({
+        const tasksCompleted = await Task.countDocuments({ user: req.user._id, completed: true });
+        const session = await FocusSession.create({
             user: req.user._id,
             mode,
             duration,
@@ -27,16 +21,15 @@ const saveSession = async (req, res) => {
         res.status(500).json({ message: "Error saving session", error: err });
     }
 };
-exports.saveSession = saveSession;
-const getSessions = async (req, res) => {
+export const getSessions = async (req, res) => {
     try {
         const userId = req.user._id;
         // Fetch all focus sessions
-        const sessions = await FocusSession_1.default.find({ user: userId })
+        const sessions = await FocusSession.find({ user: userId })
             .sort({ completedAt: -1 })
             .lean();
         // Fetch completed tasks for the user
-        const tasks = await Task_1.default.find({ user: userId, completed: true }).lean();
+        const tasks = await Task.find({ user: userId, completed: true }).lean();
         // Map sessions to frontend format with real tasks completed per session date
         const formattedSessions = sessions.map((s) => {
             const sessionDate = s.completedAt.toISOString().split("T")[0];
@@ -57,5 +50,4 @@ const getSessions = async (req, res) => {
         res.status(500).json({ message: "Error fetching sessions", error: err });
     }
 };
-exports.getSessions = getSessions;
 //# sourceMappingURL=focusController.js.map
