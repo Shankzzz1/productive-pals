@@ -1,3 +1,4 @@
+// UseRoomTimer.tsx
 import { useState, useEffect, useRef } from "react";
 import { 
   connectIfNeeded, 
@@ -13,7 +14,6 @@ import {
   requestSync
 } from "../lib/socket";
 import axios from "axios";
-import { getApiEndpoint, API_ENDPOINTS } from "@/lib/api";
 
 type Mode = "pomodoro" | "shortBreak" | "longBreak";
 
@@ -22,7 +22,7 @@ interface UseRoomTimerProps {
   username?: string;
 }
 
-export default function useRoomTimer({ roomId }: UseRoomTimerProps = {}) {
+export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {}) {
   const [time, setTime] = useState(1500); // default 25 min
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState<Mode>("pomodoro");
@@ -57,7 +57,7 @@ export default function useRoomTimer({ roomId }: UseRoomTimerProps = {}) {
       if (!token) return;
 
       await axios.post(
-        getApiEndpoint(API_ENDPOINTS.FOCUS),
+        `${import.meta.env.VITE_API_URL}/api/focus`,
         {
           duration: elapsedRef.current, // actual time spent
           mode,
