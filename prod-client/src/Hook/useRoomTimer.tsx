@@ -19,10 +19,11 @@ type Mode = "pomodoro" | "shortBreak" | "longBreak";
 
 interface UseRoomTimerProps {
   roomId?: string;
-  
+  username?: string;
 }
 
-export default function useRoomTimer({ roomId }: UseRoomTimerProps = {}) {
+export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {}) {
+  void username; // to avoid unused variable warning if not provided
   const [time, setTime] = useState(1500); // default 25 min
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState<Mode>("pomodoro");
