@@ -1,7 +1,13 @@
-import jwt from "jsonwebtoken";
-import User from "../model/User";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.protect = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const User_1 = __importDefault(require("../model/User"));
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
-export const protect = async (req, res, next) => {
+const protect = async (req, res, next) => {
     let token;
     if (req.headers.authorization &&
         req.headers.authorization.startsWith("Bearer")) {
@@ -10,8 +16,8 @@ export const protect = async (req, res, next) => {
             if (!token) {
                 return res.status(401).json({ message: "Not authorized, token missing" });
             }
-            const decoded = jwt.verify(token, JWT_SECRET);
-            req.user = await User.findById(decoded.id).select("-password");
+            const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET);
+            req.user = await User_1.default.findById(decoded.id).select("-password");
             next();
         }
         catch (err) {
@@ -22,4 +28,5 @@ export const protect = async (req, res, next) => {
         return res.status(401).json({ message: "Not authorized, no token" });
     }
 };
+exports.protect = protect;
 //# sourceMappingURL=authmiddleware.js.map

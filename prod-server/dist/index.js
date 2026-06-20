@@ -1,33 +1,38 @@
-import express from "express";
-import dotenv from "dotenv";
-import connectDB from "./config/db";
-import cors from "cors";
-import { createServer } from "http";
-import { Server } from "socket.io";
-import userRoutes from "./routes/RegUserRoutes";
-import taskRoutes from "./routes/taskRoutes";
-import focusRoutes from "./routes/focusRoutes";
-import roomRoutes from "./routes/roomRoutes";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const db_1 = __importDefault(require("./config/db"));
+const cors_1 = __importDefault(require("cors"));
+const http_1 = require("http");
+const socket_io_1 = require("socket.io");
+const RegUserRoutes_1 = __importDefault(require("./routes/RegUserRoutes"));
+const taskRoutes_1 = __importDefault(require("./routes/taskRoutes"));
+const focusRoutes_1 = __importDefault(require("./routes/focusRoutes"));
+const roomRoutes_1 = __importDefault(require("./routes/roomRoutes"));
 // Load environment variables
-dotenv.config();
-const app = express();
-const server = createServer(app);
+dotenv_1.default.config();
+const app = (0, express_1.default)();
+const server = (0, http_1.createServer)(app);
 const PORT = process.env.PORT || 5000;
 // Database connection
-connectDB();
+(0, db_1.default)();
 // Allowed origins
 const allowedOrigins = [
     "http://localhost:5173",
     process.env.CLIENT_URL,
 ].filter(Boolean);
 // Middleware
-app.use(express.json());
-app.use(cors({
+app.use(express_1.default.json());
+app.use((0, cors_1.default)({
     origin: allowedOrigins,
     credentials: true,
 }));
 // Socket.IO setup
-const io = new Server(server, {
+const io = new socket_io_1.Server(server, {
     cors: {
         origin: allowedOrigins,
         credentials: true,
@@ -256,10 +261,10 @@ app.get("/", (_req, res) => {
     res.send("Backend is running 🚀");
 });
 // Routes
-app.use("/api/users", userRoutes);
-app.use("/api/tasks", taskRoutes);
-app.use("/api/focus", focusRoutes);
-app.use("/api/rooms", roomRoutes);
+app.use("/api/users", RegUserRoutes_1.default);
+app.use("/api/tasks", taskRoutes_1.default);
+app.use("/api/focus", focusRoutes_1.default);
+app.use("/api/rooms", roomRoutes_1.default);
 // Start Server
 server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);

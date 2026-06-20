@@ -1,11 +1,7 @@
-// API utility functions for handling base URLs
+// API utility functions
+
 export const getApiUrl = () => {
-  if (import.meta.env.PROD) {
-    // In production, use the same domain (Vercel handles routing)
-    return window.location.origin;
-  }
-  // In development, use localhost
-  return 'http://localhost:5000';
+  return import.meta.env.VITE_API_URL;
 };
 
 export const getApiEndpoint = (endpoint: string) => {
@@ -15,9 +11,9 @@ export const getApiEndpoint = (endpoint: string) => {
 // Common API endpoints
 export const API_ENDPOINTS = {
   USERS: {
-    LOGIN: '/users/login',
-    REGISTER: '/users/register',
+    LOGIN: "/users/login",
+    REGISTER: "/users/register",
   },
-  TASKS: '/tasks',
-  FOCUS: '/focus',
+  TASKS: "/tasks",
+  FOCUS: "/focus",
 } as const;

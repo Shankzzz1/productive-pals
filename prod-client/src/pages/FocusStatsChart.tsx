@@ -256,7 +256,7 @@ const FocusStatsChart = () => {
         <CardContent>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={currentData}>
+              <LineChart data={currentData as any}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey={timeRange === "week" ? "day" : "week"}

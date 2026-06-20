@@ -1,26 +1,32 @@
-import bcrypt from "bcrypt";
-import User from "../model/User";
-import jwt from "jsonwebtoken";
-export const registerUser = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.loginUser = exports.registerUser = void 0;
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const User_1 = __importDefault(require("../model/User"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const registerUser = async (req, res) => {
     try {
         const { username, email, password } = req.body;
         if (!username || !email || !password) {
             return res.status(400).json({ message: "All fields are required" });
         }
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User_1.default.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "User with this email already exists" });
         }
         const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        const newUser = new User({
+        const hashedPassword = await bcrypt_1.default.hash(password, saltRounds);
+        const newUser = new User_1.default({
             username,
             email,
             password: hashedPassword
         });
         await newUser.save();
         // Generate token for instant login
-        const token = jwt.sign({ id: newUser._id, email: newUser.email }, process.env.JWT_SECRET || "your_jwt_secret", { expiresIn: "7d" });
+        const token = jsonwebtoken_1.default.sign({ id: newUser._id, email: newUser.email }, process.env.JWT_SECRET || "your_jwt_secret", { expiresIn: "7d" });
         res.status(201).json({
             message: "User registered successfully",
             user: {
@@ -36,7 +42,8 @@ export const registerUser = async (req, res) => {
         res.status(500).json({ message: "Server error. Please try again." });
     }
 };
-export const loginUser = async (req, res) => {
+exports.registerUser = registerUser;
+const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
         // Validation
@@ -44,17 +51,17 @@ export const loginUser = async (req, res) => {
             return res.status(400).json({ message: "Email and password are required" });
         }
         // Check if user exists
-        const user = await User.findOne({ email });
+        const user = await User_1.default.findOne({ email });
         if (!user) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
         // Compare password
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt_1.default.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
         // Create JWT token
-        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET || "your_jwt_secret", { expiresIn: "7d" } // 7 days
+        const token = jsonwebtoken_1.default.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET || "your_jwt_secret", { expiresIn: "7d" } // 7 days
         );
         // Return user info + token
         res.status(200).json({
@@ -68,4 +75,5 @@ export const loginUser = async (req, res) => {
         res.status(500).json({ message: "Server error. Please try again." });
     }
 };
+exports.loginUser = loginUser;
 //# sourceMappingURL=userController.js.map
