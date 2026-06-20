@@ -90,6 +90,7 @@ const LoginPage: React.FC = () => {
 
     setIsLoading(true);
 
+    
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/login`, {
         method: "POST",
