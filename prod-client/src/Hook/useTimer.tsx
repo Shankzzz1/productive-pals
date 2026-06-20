@@ -48,8 +48,26 @@ export default function useTimer() {
   // Save focus session to backend
   const saveSession = async (completed: boolean) => {
     try {
+      // const token = localStorage.getItem("token");
+      // if (!token) return;
       const token = localStorage.getItem("token");
-      if (!token) return;
+
+      if (!token) {
+        const sessions = JSON.parse(
+          localStorage.getItem("guestFocusSessions") || "[]",
+        );
+
+        sessions.push({
+          duration: elapsedRef.current,
+          mode,
+          completed,
+          completedAt: new Date().toISOString(),
+        });
+
+        localStorage.setItem("guestFocusSessions", JSON.stringify(sessions));
+
+        return;
+      }
 
       await axios.post(
         "http://localhost:5000/api/focus",
@@ -58,11 +76,11 @@ export default function useTimer() {
           mode,
           completed,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       console.log(
-        `✅ Focus session stored (${elapsedRef.current}s, completed: ${completed})`
+        `✅ Focus session stored (${elapsedRef.current}s, completed: ${completed})`,
       );
 
       if (completed) {

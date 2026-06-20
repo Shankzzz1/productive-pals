@@ -7,9 +7,9 @@ const router = express.Router();
 // Protect all routes
 router.use(protect);
 
-router.post("/", createTask);          // Create task
-router.get("/", getTasks);             // Get all tasks
-router.put("/:id", updateTask);        // Update task
-router.delete("/:id", deleteTask);     // Delete task
+router.post("/",protect,createTask);          // Create task
+router.get("/", protect,getTasks);             // Get all tasks
+router.put("/:id",protect, updateTask);        // Update task
+router.delete("/:id",protect, deleteTask);     // Delete task
 
 export default router;

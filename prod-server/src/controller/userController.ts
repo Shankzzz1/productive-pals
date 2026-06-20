@@ -27,10 +27,23 @@ export const registerUser = async (req: Request, res: Response) => {
 
     await newUser.save();
 
-    res.status(201).json({ 
-      message: "User registered successfully", 
-      user: { username, email } 
+    // Generate token for instant login
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email },
+      process.env.JWT_SECRET || "your_jwt_secret",
+      { expiresIn: "7d" }
+    );
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: { 
+        id: newUser._id,
+        username: newUser.username, 
+        email: newUser.email 
+      },
+      token
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error. Please try again." });
