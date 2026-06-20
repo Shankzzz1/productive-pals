@@ -1,3 +1,4 @@
+// Login.tsx
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Github } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getApiEndpoint, API_ENDPOINTS } from "@/lib/api";
 
 interface FormData {
   email: string;
@@ -91,7 +91,7 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch(getApiEndpoint(API_ENDPOINTS.USERS.LOGIN), {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
