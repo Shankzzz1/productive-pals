@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { getApiEndpoint, API_ENDPOINTS } from "@/lib/api";
 
 type Mode = "pomodoro" | "shortBreak" | "longBreak";
 
@@ -70,7 +71,7 @@ export default function useTimer() {
       }
 
       await axios.post(
-        "http://localhost:5000/api/focus",
+        getApiEndpoint(API_ENDPOINTS.FOCUS),
         {
           duration: elapsedRef.current, // actual time spent
           mode,

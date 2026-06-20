@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User, Hash, Clock, Shuffle } from 'lucide-react';
-import { createRoom } from '../lib/socket';
+import { createRoomHTTP } from '../lib/roomAPI';
 
 interface FormData {
   username: string;
@@ -31,7 +31,6 @@ const CreateRoom: React.FC = () => {
   
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   // Generate a random room ID
   const generateRoomId = () => {
@@ -92,7 +91,7 @@ const CreateRoom: React.FC = () => {
       const roomId = formData.roomName.trim() || generateRoomId();
       const duration = formData.pomoDuration * 60; // convert to seconds
       
-      const result = await createRoom({
+      const result = await createRoomHTTP({
         roomId,
         username: formData.username.trim(),
         duration
@@ -103,17 +102,13 @@ const CreateRoom: React.FC = () => {
         localStorage.setItem('roomId', roomId);
         localStorage.setItem('username', formData.username.trim());
         
-        setSubmitSuccess(true);
-        
-        // Navigate to /collect after a brief delay
-        setTimeout(() => {
-          navigate('/collect', { 
-            state: { 
-              roomId, 
-              username: formData.username.trim() 
-            } 
-          });
-        }, 1500);
+        // Navigate to /collect immediately after success
+        navigate('/collect', { 
+          state: { 
+            roomId, 
+            username: formData.username.trim() 
+          } 
+        });
       } else {
         setErrors({ general: result.error || 'Failed to create room' });
       }
@@ -146,13 +141,6 @@ const CreateRoom: React.FC = () => {
         </CardHeader>
         
         <CardContent>
-          {submitSuccess && (
-            <Alert className="mb-6 border-green-200 bg-green-50">
-              <AlertDescription className="text-green-800">
-                Room created successfully! 🍅
-              </AlertDescription>
-            </Alert>
-          )}
 
           {errors.general && (
             <Alert className="mb-6 border-red-200 bg-red-50">

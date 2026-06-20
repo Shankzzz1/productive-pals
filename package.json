@@ -1,0 +1,22 @@
+{
+  "name": "productive-pals",
+  "version": "1.0.0",
+  "description": "Productive Pals - A collaborative productivity app",
+  "private": true,
+  "workspaces": [
+    "prod-client",
+    "prod-server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=prod-server\" \"npm run dev --workspace=prod-client\"",
+    "build": "npm run build --workspace=prod-server && npm run build --workspace=prod-client",
+    "start": "npm run start --workspace=prod-server",
+    "vercel-build": "npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

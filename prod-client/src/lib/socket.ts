@@ -1,13 +1,26 @@
 import { io, Socket } from 'socket.io-client';
 
+// Get server URL from environment or use default
+const getServerUrl = () => {
+  if (import.meta.env.PROD) {
+    // In production, use the same domain (Vercel handles routing)
+    return window.location.origin;
+  }
+  // In development, use localhost
+  return 'http://localhost:5000';
+};
+
 // Socket.IO singleton
 let socket: Socket | null = null;
 
 export const connectIfNeeded = (): Socket => {
   if (!socket) {
-    socket = io('http://localhost:5000', {
+    socket = io(getServerUrl(), {
       autoConnect: false,
-      withCredentials: true
+      withCredentials: true,
+      transports: ['polling'], // Use polling instead of websockets for serverless
+      upgrade: false, // Disable transport upgrades
+      rememberUpgrade: false
     });
   }
   

@@ -7,28 +7,32 @@ import { Server } from "socket.io";
 import userRoutes from "./routes/RegUserRoutes";
 import taskRoutes  from "./routes/taskRoutes";
 import focusRoutes from "./routes/focusRoutes";
+import roomRoutes from "./routes/roomRoutes";
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const server = createServer(app);
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 connectDB();
 
 // Middleware
 app.use(express.json());
 app.use(cors({
-
-
-  origin: 'http://localhost:5173',
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true
 }));
 
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true
-  }
+  },
+  transports: ['polling'], // Force polling for serverless compatibility
+  allowEIO3: true // Allow Engine.IO v3 for better compatibility
 });
 
 // Room-based timer state management
@@ -263,6 +267,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/focus", focusRoutes);
+app.use("/api/rooms", roomRoutes);
 
 // Start server
 server.listen(PORT, () => {

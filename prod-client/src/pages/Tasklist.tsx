@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   CheckCircle2,
   Circle,
@@ -14,6 +13,7 @@ import {
   RefreshCw,
   LogIn,
 } from "lucide-react";
+import { getApiEndpoint, API_ENDPOINTS } from "@/lib/api";
 
 interface Task {
   _id: string;
@@ -158,7 +158,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
 };
 
 const TaskList: React.FC = () => {
-  const API_URL = "http://localhost:5000/api/tasks";
+  const API_URL = getApiEndpoint(API_ENDPOINTS.TASKS);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskText, setNewTaskText] = useState("");
   const [isAdding, setIsAdding] = useState(false);
