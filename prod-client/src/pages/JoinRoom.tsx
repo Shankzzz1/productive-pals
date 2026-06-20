@@ -6,8 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User, Hash, LogIn, AlertCircle } from 'lucide-react';
-import { joinRoomHTTP } from '../lib/roomAPI';
-
+import { joinRoom } from "../lib/socket";
 interface JoinFormData {
   username: string;
   roomId: string;
@@ -76,7 +75,7 @@ const JoinRoom: React.FC = () => {
     setIsJoining(true);
     
     try {
-      const result = await joinRoomHTTP({
+      const result = await joinRoom({
         roomId: formData.roomId.toUpperCase(),
         username: formData.username.trim()
       });

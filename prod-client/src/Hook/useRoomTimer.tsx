@@ -1,17 +1,17 @@
 // UseRoomTimer.tsx
 import { useState, useEffect, useRef } from "react";
-import { 
-  connectIfNeeded, 
-  onTimerUpdate, 
-  offTimerUpdate, 
-  onPresenceUpdate, 
+import {
+  connectIfNeeded,
+  onTimerUpdate,
+  offTimerUpdate,
+  onPresenceUpdate,
   offPresenceUpdate,
   startTimer as socketStartTimer,
   pauseTimer as socketPauseTimer,
   resetTimer as socketResetTimer,
   changeMode as socketChangeMode,
   adjustTime as socketAdjustTime,
-  requestSync
+  requestSync,
 } from "../lib/socket";
 import axios from "axios";
 
@@ -22,13 +22,18 @@ interface UseRoomTimerProps {
   username?: string;
 }
 
-export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {}) {
+export default function useRoomTimer({
+  roomId,
+  username,
+}: UseRoomTimerProps = {}) {
   void username; // to avoid unused variable warning if not provided
   const [time, setTime] = useState(1500); // default 25 min
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState<Mode>("pomodoro");
   const [participants, setParticipants] = useState<string[]>([]);
-  const [participantUsernames, setParticipantUsernames] = useState<string[]>([]);
+  const [participantUsernames, setParticipantUsernames] = useState<string[]>(
+    [],
+  );
 
   const modeTimes: Record<Mode, number> = {
     pomodoro: 1500,
@@ -45,7 +50,7 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
   }>({
     remainingSeconds: 1500,
     isRunning: false,
-    mode: "pomodoro"
+    mode: "pomodoro",
   });
 
   // Track elapsed time for saving focus sessions
@@ -64,11 +69,11 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
           mode,
           completed,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       console.log(
-        `✅ Focus session stored (${elapsedRef.current}s, completed: ${completed})`
+        `✅ Focus session stored (${elapsedRef.current}s, completed: ${completed})`,
       );
 
       if (completed) {
@@ -82,7 +87,7 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
   // Local countdown effect for smooth UI updates
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
-    
+
     if (isRunning && time > 0) {
       interval = setInterval(() => {
         setTime((prev) => {
@@ -99,7 +104,7 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
         });
       }, 1000);
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -127,7 +132,7 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
         remainingSeconds: data.remainingSeconds,
         isRunning: data.isRunning,
         mode: data.mode,
-        startAtEpochMs: data.startAtEpochMs
+        startAtEpochMs: data.startAtEpochMs,
       };
 
       setMode(data.mode);
@@ -230,7 +235,10 @@ export default function useRoomTimer({ roomId, username }: UseRoomTimerProps = {
   // Room-based timer controls
   const onStart = () => {
     if (roomId) {
-      socketStartTimer(roomId);
+      console.log("START CLICKED", roomId);
+      if (roomId) {
+        socketStartTimer(roomId);
+      }
     }
   };
 

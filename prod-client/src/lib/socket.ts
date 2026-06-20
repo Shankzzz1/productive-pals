@@ -9,6 +9,7 @@ let socket: Socket | null = null;
 // Create/connect socket only once
 export const connectIfNeeded = (): Socket => {
   if (!socket) {
+    console.log("Connecting socket to:", SERVER_URL);
     socket = io(SERVER_URL, {
       autoConnect: false,
       withCredentials: true,
@@ -16,6 +17,14 @@ export const connectIfNeeded = (): Socket => {
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
     });
+
+    socket.on("connect", () => {
+    console.log("Socket connected:", socket?.id);
+  });
+
+  socket.on("connect_error", (err) => {
+    console.error("Socket error:", err);
+  });
   }
 
   if (!socket.connected) {

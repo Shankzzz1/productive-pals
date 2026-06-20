@@ -6,8 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { User, Hash, Clock, Shuffle } from 'lucide-react';
-import { createRoomHTTP } from '../lib/roomAPI';
-
+import { createRoom } from '../lib/socket';
 interface FormData {
   username: string;
   roomName: string;
@@ -91,7 +90,7 @@ const CreateRoom: React.FC = () => {
       const roomId = formData.roomName.trim() || generateRoomId();
       const duration = formData.pomoDuration * 60; // convert to seconds
       
-      const result = await createRoomHTTP({
+      const result = await createRoom({
         roomId,
         username: formData.username.trim(),
         duration

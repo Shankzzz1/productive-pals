@@ -119,7 +119,9 @@ io.on("connection", (socket) => {
   // Create Room
   socket.on("create_room", (data, ack) => {
     try {
+      
       const { roomId, username, duration } = data;
+      console.log("CREATE ROOM", roomId);
 
       if (rooms.has(roomId)) {
         ack({
@@ -165,6 +167,7 @@ io.on("connection", (socket) => {
   socket.on("join_room", (data, ack) => {
     try {
       const { roomId, username } = data;
+      console.log("JOIN ROOM", roomId);
 
       const room = rooms.get(roomId);
 
@@ -269,6 +272,7 @@ io.on("connection", (socket) => {
   // Start Timer
   socket.on("start_timer", (roomId) => {
     const room = rooms.get(roomId);
+    console.log("START TIMER", roomId);
 
     if (!room || room.isRunning) return;
 
@@ -388,7 +392,7 @@ app.get("/", (_req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/focus", focusRoutes);
-app.use("/api/rooms", roomRoutes);
+// app.use("/api/rooms", roomRoutes);
 
 // Start Server
 server.listen(PORT, () => {
