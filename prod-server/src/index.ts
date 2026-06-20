@@ -38,7 +38,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.options("*", cors());
+
 
 // Socket.IO setup
 const io = new Server(server, {
