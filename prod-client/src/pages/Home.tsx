@@ -1,327 +1,41 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  Clock, CheckSquare, Users, BarChart2, FolderOpen,
+  Eye, Menu, X, Github, ArrowRight, TrendingUp
+} from 'lucide-react';
 
-// ── Tokens ──────────────────────────────────────────────────────────────────
-// bg: #FAFAFA  surface: #F4F4F4  border: #E5E5E5
-// text-primary: #111  text-secondary: #666  text-muted: #999
-// accent: #6366F1  accent-soft: #EEF2FF
-// radius: 10px cards, 8px buttons
+// ─────────────────────────────────────────────────────────────────
+// Design tokens (all values derived from brief — not template defaults)
+// bg: #FAFAFA  |  surface: #FFFFFF  |  border: #EBEBEB
+// muted-bg: #F5F5F5  |  text: #0F0F0F  |  subtle: #6B6B6B
+// accent: #6366F1  |  accent-bg: #EEEFFE  |  green: #16A34A
+// ─────────────────────────────────────────────────────────────────
 
-// ── Utility ─────────────────────────────────────────────────────────────────
-const cn = (...classes) => classes.filter(Boolean).join(" ");
-// ── Live Focus Room Widget (hero signature element) ──────────────────────────
-const AVATARS = [
-  { id: 1, initials: "AK", color: "#D4A5F5", delay: 0 },
-  { id: 2, initials: "JR", color: "#93C5FD", delay: 0.4 },
-  { id: 3, initials: "ML", color: "#6EE7B7", delay: 0.8 },
-  { id: 4, initials: "ST", color: "#FCA5A5", delay: 1.2 },
-  { id: 5, initials: "PY", color: "#FDE68A", delay: 1.6 },
-];
-
-const TASKS = [
-  { id: 1, text: "Write project proposal", done: true, owner: "AK" },
-  { id: 2, text: "Review pull requests", done: true, owner: "JR" },
-  { id: 3, text: "Update design system docs", done: false, owner: "ML" },
-  { id: 4, text: "Prepare for Monday demo", done: false, owner: "ST" },
-];
-
-function PulsingRing({ color, delay }) {
-  return (
-    <span
-    style={{
-        position: "absolute",
-        inset: -3,
-        borderRadius: "50%",
-        border: `2px solid ${color}`,
-        opacity: 0,
-        animation: `pulse-ring 2.4s ease-out ${delay}s infinite`,
-        pointerEvents: "none",
-      }}
-      />
-    );
-}
-
-function FocusRoomWidget() {
-  const [seconds, setSeconds] = useState(847);
-  const [phase, setPhase] = useState("focus");
-  const total = phase === "focus" ? 1500 : 300;
-  
-  useEffect(() => {
-    const t = setInterval(() => {
-      setSeconds((s) => {
-        if (s <= 1) {
-          setPhase((p) => (p === "focus" ? "break" : "focus"));
-          return phase === "focus" ? 300 : 1500;
-        }
-        return s - 1;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, [phase]);
-  
-  const mins = String(Math.floor(seconds / 60)).padStart(2, "0");
-  const secs = String(seconds % 60).padStart(2, "0");
-  const progress = ((total - seconds) / total) * 100;
-  const circumference = 2 * Math.PI * 38;
-  const dashoffset = circumference - (progress / 100) * circumference;
-
-  return (
-    <div
-    style={{
-        background: "#fff",
-        border: "1px solid #E5E5E5",
-        borderRadius: 16,
-        padding: "24px",
-        width: "100%",
-        maxWidth: 400,
-        boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
-        fontFamily: "Inter, system-ui, sans-serif",
-      }}
-      >
-      {/* Room header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#111", letterSpacing: "-0.01em" }}>
-            Deep Work Room
-          </div>
-          <div style={{ fontSize: 12, color: "#999", marginTop: 2 }}>
-            Session 3 of 4 · 5 members
-          </div>
-        </div>
-        <div
-          style={{
-            background: phase === "focus" ? "#EEF2FF" : "#F0FDF4",
-            color: phase === "focus" ? "#6366F1" : "#16A34A",
-            fontSize: 11,
-            fontWeight: 600,
-            padding: "4px 10px",
-            borderRadius: 20,
-            letterSpacing: "0.02em",
-            textTransform: "uppercase",
-          }}
-        >
-          {phase === "focus" ? "Focus" : "Break"}
-        </div>
-      </div>
-
-      {/* Timer ring */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-        <div style={{ position: "relative", width: 96, height: 96 }}>
-          <svg width="96" height="96" style={{ transform: "rotate(-90deg)" }}>
-            <circle cx="48" cy="48" r="38" fill="none" stroke="#F4F4F4" strokeWidth="5" />
-            <circle
-              cx="48"
-              cy="48"
-              r="38"
-              fill="none"
-              stroke={phase === "focus" ? "#6366F1" : "#16A34A"}
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashoffset}
-              style={{ transition: "stroke-dashoffset 1s linear" }}
-            />
-          </svg>
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div style={{ fontSize: 20, fontWeight: 700, color: "#111", letterSpacing: "-0.04em", fontVariantNumeric: "tabular-nums" }}>
-              {mins}:{secs}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Avatars */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 20 }}>
-        {AVATARS.map((a, i) => (
-          <div key={a.id} style={{ position: "relative", width: 32, height: 32 }}>
-            <PulsingRing color={a.color} delay={a.delay} />
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                background: a.color,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                fontWeight: 700,
-                color: "#111",
-                border: "2px solid #fff",
-                position: "relative",
-                zIndex: 1,
-              }}
-            >
-              {a.initials}
-            </div>
-          </div>
-        ))}
-        <div style={{ marginLeft: 4, fontSize: 12, color: "#999" }}>all focusing</div>
-      </div>
-
-      {/* Task list */}
-      <div style={{ borderTop: "1px solid #F4F4F4", paddingTop: 16 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "#999", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 10 }}>
-          Your Tasks
-        </div>
-        {TASKS.map((task) => (
-          <div key={task.id} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-            <div
-              style={{
-                width: 16,
-                height: 16,
-                borderRadius: 4,
-                border: task.done ? "none" : "1.5px solid #D1D5DB",
-                background: task.done ? "#6366F1" : "transparent",
-                flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {task.done && (
-                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                  <path d="M1 4l2.5 2.5L9 1" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </div>
-            <span
-              style={{
-                fontSize: 13,
-                color: task.done ? "#999" : "#333",
-                textDecoration: task.done ? "line-through" : "none",
-                flex: 1,
-              }}
-            >
-              {task.text}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── Analytics Preview Widget ─────────────────────────────────────────────────
-const WEEK_DATA = [
-  { day: "Mon", hours: 3.5 },
-  { day: "Tue", hours: 5.0 },
-  { day: "Wed", hours: 2.0 },
-  { day: "Thu", hours: 6.5 },
-  { day: "Fri", hours: 4.0 },
-  { day: "Sat", hours: 1.5 },
-  { day: "Sun", hours: 0.5 },
-];
-
-function BarChart({ data, animated }) {
-  const max = Math.max(...data.map((d) => d.hours));
-  return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 80 }}>
-      {data.map((d, i) => (
-        <div key={d.day} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, height: "100%" }}>
-          <div style={{ flex: 1, display: "flex", alignItems: "flex-end", width: "100%" }}>
-            <div
-              style={{
-                width: "100%",
-                borderRadius: 4,
-                background: d.day === "Thu" ? "#6366F1" : "#E5E5E5",
-                height: animated ? `${(d.hours / max) * 100}%` : "0%",
-                transition: `height 0.6s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.06}s`,
-                minHeight: 4,
-              }}
-            />
-          </div>
-          <span style={{ fontSize: 10, color: d.day === "Thu" ? "#6366F1" : "#999", fontWeight: d.day === "Thu" ? 700 : 400 }}>
-            {d.day}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function AnalyticsWidget() {
-  const [animated, setAnimated] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setAnimated(true); obs.disconnect(); }
-    }, { threshold: 0.3 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        background: "#fff",
-        border: "1px solid #E5E5E5",
-        borderRadius: 16,
-        padding: "24px",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
-        fontFamily: "Inter, system-ui, sans-serif",
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#111" }}>This Week</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#111", letterSpacing: "-0.04em", marginTop: 4 }}>
-            23.0<span style={{ fontSize: 16, fontWeight: 500, color: "#999" }}> hrs</span>
-          </div>
-        </div>
-        <div style={{ background: "#F0FDF4", color: "#16A34A", fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 20 }}>
-          +18% vs last week
-        </div>
-      </div>
-      <BarChart data={WEEK_DATA} animated={animated} />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 20, paddingTop: 20, borderTop: "1px solid #F4F4F4" }}>
-        {[
-          { label: "Sessions", value: "31" },
-          { label: "Streak", value: "12d" },
-          { label: "Avg/day", value: "3.3h" },
-        ].map((s) => (
-          <div key={s.label} style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "#111", letterSpacing: "-0.03em" }}>{s.value}</div>
-            <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── Intersection-triggered fade-up ───────────────────────────────────────────
-function FadeUp({ children, delay = 0, style = {} }) {
+// ── Utility: scroll-triggered fade-up ────────────────────────────
+function FadeUp({ children, delay = 0, className = '' }) {
   const [visible, setVisible] = useState(false);
   const ref = useRef(null);
 
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setVisible(true); obs.disconnect(); }
-    }, { threshold: 0.15 });
-    if (ref.current) obs.observe(ref.current);
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.12 }
+    );
+    obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
   return (
     <div
       ref={ref}
+      className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(20px)",
-        transition: `opacity 0.55s ease ${delay}s, transform 0.55s ease ${delay}s`,
-        ...style,
+        transform: visible ? 'translateY(0)' : 'translateY(18px)',
+        transition: `opacity 0.5s ease ${delay}s, transform 0.5s ease ${delay}s`,
       }}
     >
       {children}
@@ -329,816 +43,654 @@ function FadeUp({ children, delay = 0, style = {} }) {
   );
 }
 
-// ── Feature Card ─────────────────────────────────────────────────────────────
-function FeatureCard({ icon, title, desc, delay }) {
-  const [hovered, setHovered] = useState(false);
+// ── Live animated Pomodoro room (signature element) ───────────────
+const ROOM_MEMBERS = [
+  { id: 1, initials: 'AK', bg: '#C4B5FD', label: 'Aditya K.' },
+  { id: 2, initials: 'JR', bg: '#93C5FD', label: 'Jay R.' },
+  { id: 3, initials: 'ML', bg: '#6EE7B7', label: 'Mia L.' },
+  { id: 4, initials: 'ST', bg: '#FCA5A5', label: 'Sam T.' },
+];
 
-  return (
-    <FadeUp delay={delay}>
-      <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          background: "#fff",
-          border: "1px solid #E5E5E5",
-          borderRadius: 12,
-          padding: "24px",
-          transition: "box-shadow 0.2s ease, transform 0.2s ease",
-          boxShadow: hovered ? "0 8px 32px rgba(0,0,0,0.09)" : "0 2px 8px rgba(0,0,0,0.04)",
-          transform: hovered ? "translateY(-2px)" : "translateY(0)",
-          cursor: "default",
-          height: "100%",
-        }}
-      >
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 10,
-            background: "#EEF2FF",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: 16,
-            fontSize: 20,
-          }}
-        >
-          {icon}
-        </div>
-        <div style={{ fontSize: 15, fontWeight: 600, color: "#111", marginBottom: 8, letterSpacing: "-0.01em" }}>{title}</div>
-        <div style={{ fontSize: 14, color: "#666", lineHeight: 1.6 }}>{desc}</div>
-      </div>
-    </FadeUp>
-  );
-}
+const ROOM_TASKS = [
+  { id: 1, text: 'Review design system tokens', done: true },
+  { id: 2, text: 'Write API integration tests', done: true },
+  { id: 3, text: 'Prep Monday standup notes', done: false },
+  { id: 4, text: 'Update changelog', done: false },
+];
 
-// ── Step ─────────────────────────────────────────────────────────────────────
-function Step({ num, title, desc, isLast, delay }) {
-  return (
-    <FadeUp delay={delay} style={{ flex: 1 }}>
-      <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-        <div style={{ flexShrink: 0 }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
-              border: "1.5px solid #E5E5E5",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 13,
-              fontWeight: 700,
-              color: "#6366F1",
-              background: "#fff",
-            }}
-          >
-            {num}
-          </div>
-        </div>
-        <div style={{ paddingTop: 6 }}>
-          <div style={{ fontSize: 15, fontWeight: 600, color: "#111", marginBottom: 6, letterSpacing: "-0.01em" }}>{title}</div>
-          <div style={{ fontSize: 14, color: "#666", lineHeight: 1.6 }}>{desc}</div>
-        </div>
-      </div>
-    </FadeUp>
-  );
-}
-
-// ── Nav ──────────────────────────────────────────────────────────────────────
-function Nav() {
-  const [scrolled, setScrolled] = useState(false);
+function LiveRoomCard() {
+  const [seconds, setSeconds] = useState(1123);
+  const [phase, setPhase] = useState('focus');
+  const FOCUS_TOTAL = 1500;
+  const BREAK_TOTAL = 300;
+  const total = phase === 'focus' ? FOCUS_TOTAL : BREAK_TOTAL;
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 12);
-    window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
+    const t = setInterval(() => {
+      setSeconds(s => {
+        if (s <= 1) {
+          setPhase(p => {
+            const next = p === 'focus' ? 'break' : 'focus';
+            return next;
+          });
+          return phase === 'focus' ? BREAK_TOTAL : FOCUS_TOTAL;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [phase]);
+
+  const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const ss = String(seconds % 60).padStart(2, '0');
+  const pct = ((total - seconds) / total) * 100;
+  const R = 44;
+  const C = 2 * Math.PI * R;
+
+  return (
+    <div className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_4px_28px_rgba(0,0,0,0.07)] overflow-hidden w-full max-w-[400px] mx-auto">
+      {/* Card header */}
+      <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[#F0F0F0]">
+        <div>
+          <p className="text-[13px] font-semibold text-[#0F0F0F] tracking-tight">Deep Work · Room #4</p>
+          <p className="text-[11px] text-[#9B9B9B] mt-0.5">Session 2 of 4 · {ROOM_MEMBERS.length} members</p>
+        </div>
+        <span
+          className="text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full"
+          style={{
+            background: phase === 'focus' ? '#EEEFFE' : '#F0FDF4',
+            color: phase === 'focus' ? '#6366F1' : '#16A34A',
+          }}
+        >
+          {phase === 'focus' ? 'Focus' : 'Break'}
+        </span>
+      </div>
+
+      <div className="px-5 py-5">
+        {/* Timer ring */}
+        <div className="flex justify-center mb-5">
+          <div className="relative w-[108px] h-[108px]">
+            <svg width="108" height="108" style={{ transform: 'rotate(-90deg)' }}>
+              <circle cx="54" cy="54" r={R} fill="none" stroke="#F0F0F0" strokeWidth="6" />
+              <circle
+                cx="54" cy="54" r={R} fill="none"
+                stroke={phase === 'focus' ? '#6366F1' : '#16A34A'}
+                strokeWidth="6"
+                strokeLinecap="round"
+                strokeDasharray={C}
+                strokeDashoffset={C - (pct / 100) * C}
+                style={{ transition: 'stroke-dashoffset 1s linear' }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span
+                className="text-[22px] font-bold text-[#0F0F0F] tracking-tighter"
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
+                {mm}:{ss}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Presence row */}
+        <div className="flex items-center gap-2 mb-5">
+          {ROOM_MEMBERS.map((m, i) => (
+            <div
+              key={m.id}
+              className="relative w-8 h-8"
+              style={{ animationDelay: `${i * 0.4}s` }}
+            >
+              {/* pulse ring */}
+              <span
+                className="absolute inset-[-3px] rounded-full border-2 animate-ping"
+                style={{ borderColor: m.bg, opacity: 0.5, animationDuration: '2.2s', animationDelay: `${i * 0.4}s` }}
+              />
+              <div
+                className="relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-[#0F0F0F] border-2 border-white"
+                style={{ background: m.bg }}
+              >
+                {m.initials}
+              </div>
+            </div>
+          ))}
+          <span className="text-[11px] text-[#9B9B9B] ml-1">all focusing</span>
+        </div>
+
+        {/* Task list */}
+        <div className="border-t border-[#F0F0F0] pt-4">
+          <p className="text-[10px] font-bold text-[#ABABAB] tracking-[0.08em] uppercase mb-3">Your tasks</p>
+          <div className="space-y-2.5">
+            {ROOM_TASKS.map(task => (
+              <div key={task.id} className="flex items-center gap-2.5">
+                <div
+                  className="w-4 h-4 rounded-[4px] flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: task.done ? '#6366F1' : 'transparent',
+                    border: task.done ? 'none' : '1.5px solid #D1D5DB',
+                  }}
+                >
+                  {task.done && (
+                    <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                      <path d="M1 3.5l2 2 4.5-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+                <span
+                  className="text-[12px]"
+                  style={{ color: task.done ? '#ABABAB' : '#333', textDecoration: task.done ? 'line-through' : 'none' }}
+                >
+                  {task.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Mini analytics preview ────────────────────────────────────────
+const BARS = [
+  { day: 'M', h: 55, active: false },
+  { day: 'T', h: 80, active: false },
+  { day: 'W', h: 35, active: false },
+  { day: 'T', h: 100, active: true },
+  { day: 'F', h: 65, active: false },
+  { day: 'S', h: 20, active: false },
+  { day: 'S', h: 10, active: false },
+];
+
+function AnalyticsCard() {
+  const [mounted, setMounted] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setMounted(true); obs.disconnect(); } },
+      { threshold: 0.3 }
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
   }, []);
 
   return (
+    <div
+      ref={ref}
+      className="bg-white rounded-2xl border border-[#EBEBEB] shadow-[0_4px_28px_rgba(0,0,0,0.07)] p-6"
+    >
+      <div className="flex items-start justify-between mb-5">
+        <div>
+          <p className="text-[12px] text-[#9B9B9B] font-medium mb-1">This week</p>
+          <p className="text-[30px] font-extrabold text-[#0F0F0F] tracking-tight leading-none">
+            23.5<span className="text-[16px] font-medium text-[#9B9B9B]"> hrs</span>
+          </p>
+        </div>
+        <div className="flex items-center gap-1.5 bg-[#F0FDF4] text-[#16A34A] text-[11px] font-bold px-2.5 py-1 rounded-full">
+          <TrendingUp className="w-3 h-3" />
+          +18%
+        </div>
+      </div>
+
+      {/* Bar chart */}
+      <div className="flex items-end gap-1.5 h-[72px] mb-3">
+        {BARS.map((b, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full">
+            <div className="flex-1 flex items-end w-full">
+              <div
+                className="w-full rounded-[3px]"
+                style={{
+                  height: mounted ? `${b.h}%` : '0%',
+                  background: b.active ? '#6366F1' : '#EBEBEB',
+                  transition: `height 0.55s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.05}s`,
+                  minHeight: 3,
+                }}
+              />
+            </div>
+            <span
+              className="text-[9px] font-medium"
+              style={{ color: b.active ? '#6366F1' : '#C0C0C0' }}
+            >
+              {b.day}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[#F0F0F0]">
+        {[
+          { label: 'Sessions', value: '31' },
+          { label: 'Streak', value: '12d' },
+          { label: 'Daily avg', value: '3.4h' },
+        ].map(s => (
+          <div key={s.label} className="text-center">
+            <p className="text-[16px] font-bold text-[#0F0F0F] tracking-tight">{s.value}</p>
+            <p className="text-[10px] text-[#ABABAB] mt-0.5">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Feature card ─────────────────────────────────────────────────
+function FeatureCard({ Icon, title, desc, delay }) {
+  return (
+    <FadeUp delay={delay}>
+      <div className="group bg-white border border-[#EBEBEB] rounded-xl p-6 h-full transition-all duration-200 hover:shadow-[0_8px_32px_rgba(0,0,0,0.09)] hover:-translate-y-0.5 cursor-default">
+        <div className="w-9 h-9 rounded-[8px] bg-[#EEEFFE] flex items-center justify-center mb-5">
+          <Icon className="w-[18px] h-[18px] text-[#6366F1]" />
+        </div>
+        <h3 className="text-[14px] font-semibold text-[#0F0F0F] mb-2 tracking-tight">{title}</h3>
+        <p className="text-[13px] text-[#6B6B6B] leading-relaxed">{desc}</p>
+      </div>
+    </FadeUp>
+  );
+}
+
+// ── Nav ──────────────────────────────────────────────────────────
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+
+  const links = ['Features', 'How it works', 'Analytics'];
+
+  return (
     <nav
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-200"
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        background: scrolled ? "rgba(250,250,250,0.92)" : "transparent",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        borderBottom: scrolled ? "1px solid #E5E5E5" : "1px solid transparent",
-        transition: "background 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease",
-        fontFamily: "Inter, system-ui, sans-serif",
+        background: scrolled ? 'rgba(250,250,250,0.92)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(14px)' : 'none',
+        borderBottom: scrolled ? '1px solid #EBEBEB' : '1px solid transparent',
       }}
     >
-      <div
-        style={{
-          maxWidth: 1100,
-          margin: "0 auto",
-          padding: "0 24px",
-          height: 60,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
+      <div className="max-w-[1120px] mx-auto px-6 h-[60px] flex items-center justify-between">
         {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 8,
-              background: "#6366F1",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <circle cx="7" cy="7" r="5" stroke="#fff" strokeWidth="1.5" />
-              <path d="M7 4.5v2.5l1.5 1.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-[7px] bg-[#6366F1] flex items-center justify-center flex-shrink-0">
+            <Clock className="w-3.5 h-3.5 text-white" />
           </div>
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#111", letterSpacing: "-0.02em" }}>
-            Productive Pals
-          </span>
+          <span className="text-[14px] font-bold text-[#0F0F0F] tracking-tight">Productive Pals</span>
         </div>
 
-        {/* Links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {["Features", "How it works", "Analytics"].map((l) => (
+        {/* Desktop links */}
+        <div className="hidden md:flex items-center gap-1">
+          {links.map(l => (
             <a
               key={l}
-              href={`#${l.toLowerCase().replace(/ /g, "-")}`}
-              style={{
-                fontSize: 14,
-                color: "#666",
-                textDecoration: "none",
-                padding: "6px 12px",
-                borderRadius: 8,
-                transition: "color 0.15s, background 0.15s",
-              }}
-              onMouseEnter={(e) => { e.target.style.color = "#111"; e.target.style.background = "#F4F4F4"; }}
-              onMouseLeave={(e) => { e.target.style.color = "#666"; e.target.style.background = "transparent"; }}
+              href={`#${l.toLowerCase().replace(/ /g, '-')}`}
+              className="text-[13px] text-[#6B6B6B] px-3 py-1.5 rounded-lg hover:text-[#0F0F0F] hover:bg-[#F0F0F0] transition-all duration-150"
             >
               {l}
             </a>
           ))}
-          <div style={{ width: 1, height: 16, background: "#E5E5E5", margin: "0 8px" }} />
-          <button
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: "#fff",
-              background: "#111",
-              border: "none",
-              padding: "8px 18px",
-              borderRadius: 8,
-              cursor: "pointer",
-              letterSpacing: "-0.01em",
-              transition: "background 0.15s",
-            }}
-            onMouseEnter={(e) => (e.target.style.background = "#333")}
-            onMouseLeave={(e) => (e.target.style.background = "#111")}
-          >
-            Get started
-          </button>
+          <div className="w-px h-4 bg-[#E0E0E0] mx-2" />
+          <Link to="/create">
+            <button className="text-[13px] font-semibold text-white bg-[#0F0F0F] px-4 py-2 rounded-[8px] hover:bg-[#333] transition-colors duration-150">
+              Get started
+            </button>
+          </Link>
         </div>
+
+        {/* Mobile burger */}
+        <button
+          className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F0F0F0]"
+          onClick={() => setMobileOpen(o => !o)}
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+        </button>
       </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="md:hidden bg-white border-t border-[#EBEBEB] px-6 py-4 space-y-1">
+          {links.map(l => (
+            <a
+              key={l}
+              href={`#${l.toLowerCase().replace(/ /g, '-')}`}
+              className="block text-[14px] text-[#6B6B6B] py-2 px-3 rounded-lg hover:bg-[#F5F5F5] hover:text-[#0F0F0F]"
+              onClick={() => setMobileOpen(false)}
+            >
+              {l}
+            </a>
+          ))}
+          <div className="pt-2">
+            <Link to="/create" onClick={() => setMobileOpen(false)}>
+              <button className="w-full text-[14px] font-semibold text-white bg-[#0F0F0F] py-2.5 rounded-[8px]">
+                Get started
+              </button>
+            </Link>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
 
-// ── Main App ─────────────────────────────────────────────────────────────────
-export default function ProductivePalsLanding() {
-  const navigate = useNavigate();
+// ── Main Page ────────────────────────────────────────────────────
+export default function Home() {
 
   const FEATURES = [
     {
-      icon: "⏱",
-      title: "Shared Pomodoro Timer",
-      desc: "Everyone in the room sees the same timer. No one gets ahead. No one falls behind.",
+      Icon: Clock,
+      title: 'Shared Pomodoro Timer',
+      desc: 'Everyone in the room sees the same countdown. No one gets ahead, no one falls behind.',
     },
     {
-      icon: "🚪",
-      title: "Public & Private Rooms",
-      desc: "Join an open room when you need company, or lock it down for your team.",
+      Icon: Users,
+      title: 'Public & Private Rooms',
+      desc: 'Join an open room when you need company, or lock it down for just your team.',
     },
     {
-      icon: "📊",
-      title: "Productivity Analytics",
-      desc: "See your weekly focus time, streaks, and session history at a glance.",
+      Icon: BarChart2,
+      title: 'Productivity Analytics',
+      desc: 'Weekly charts, session streaks, and focus trends — all in one clean dashboard.',
     },
     {
-      icon: "📋",
-      title: "Per-session Tasks",
-      desc: "Add tasks before you start. Check them off as you go. See what you actually did.",
+      Icon: CheckSquare,
+      title: 'Per-session Tasks',
+      desc: 'Add tasks before you start, check them off as you go, and see what you shipped.',
     },
     {
-      icon: "👁",
-      title: "Presence Without Pressure",
-      desc: "Knowing others are focused too is often all the motivation you need.",
+      Icon: Eye,
+      title: 'Presence Without Pressure',
+      desc: 'Knowing others are focused too is often all the motivation you need.',
     },
     {
-      icon: "📈",
-      title: "Focus History",
-      desc: "A running log of every session you've completed, searchable and filterable.",
+      Icon: FolderOpen,
+      title: 'Full Session History',
+      desc: 'Every session is logged. Go back, review, and see how your patterns change over time.',
     },
-  ];
-
-  const STATS = [
-    { value: "140k+", label: "Focus sessions" },
-    { value: "8,200+", label: "Rooms created" },
-    { value: "210k+", label: "Hours focused" },
   ];
 
   const STEPS = [
     {
-      num: "1",
-      title: "Create a room",
-      desc: "Name it, set a goal, choose public or private. Takes about ten seconds.",
+      n: '1',
+      title: 'Create a room',
+      desc: 'Name it, pick a goal, choose public or private. Takes about ten seconds.',
     },
     {
-      num: "2",
-      title: "Invite your people",
-      desc: "Share a link. They click it. They're in. No account required to join.",
+      n: '2',
+      title: 'Invite your people',
+      desc: 'Share a link. They click, they\'re in. No account required to join.',
     },
     {
-      num: "3",
-      title: "Focus together",
-      desc: "The timer runs for everyone. When it ends, take a break. Repeat.",
+      n: '3',
+      title: 'Focus together',
+      desc: 'The timer runs for everyone. Break together, then go again.',
     },
   ];
 
+  const STATS = [
+    { value: '140k+', label: 'Focus sessions' },
+    { value: '8,200+', label: 'Rooms created' },
+    { value: '210k+', label: 'Hours focused' },
+  ];
+
   return (
-    <>
-      {/* Global styles */}
+    <div className="min-h-screen bg-[#FAFAFA] text-[#0F0F0F]" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
+
+      {/* Global keyframes */}
       <style>{`
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { background: #FAFAFA; color: #111; font-family: Inter, system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
-        @keyframes pulse-ring {
-          0% { transform: scale(1); opacity: 0.6; }
-          100% { transform: scale(1.7); opacity: 0; }
-        }
-
-        @keyframes float-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
-        }
-
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
-
-        @media (max-width: 768px) {
-          .hero-grid { flex-direction: column !important; }
-          .features-grid { grid-template-columns: 1fr !important; }
-          .steps-grid { flex-direction: column !important; }
-          .stats-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
-          .nav-links { display: none !important; }
-          .analytics-grid { flex-direction: column !important; }
+        @keyframes ticker-float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
         }
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .hero-animate { animation: fade-in-up 0.6s ease forwards; }
+        .hero-animate-2 { animation: fade-in-up 0.6s 0.12s ease forwards; opacity: 0; }
+        .hero-animate-3 { animation: fade-in-up 0.6s 0.22s ease forwards; opacity: 0; }
+        .hero-animate-4 { animation: fade-in-up 0.6s 0.34s ease forwards; opacity: 0; }
+        .widget-float { animation: ticker-float 5s ease-in-out infinite; }
       `}</style>
 
       <Nav />
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          paddingTop: 80,
-          paddingBottom: 80,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1100,
-            margin: "0 auto",
-            padding: "0 24px",
-            width: "100%",
-          }}
-        >
-          <div
-            className="hero-grid"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 80,
-            }}
-          >
-            {/* Left */}
-            <div style={{ flex: "0 0 auto", maxWidth: 520 }}>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  background: "#EEF2FF",
-                  color: "#6366F1",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  padding: "6px 12px",
-                  borderRadius: 20,
-                  marginBottom: 32,
-                  letterSpacing: "0.02em",
-                  animation: "float-slow 4s ease-in-out infinite",
-                }}
-              >
-                <span
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    background: "#6366F1",
-                    animation: "pulse-ring 2s ease-out infinite",
-                    flexShrink: 0,
-                  }}
-                />
-                Live rooms open now
+      {/* ── HERO ──────────────────────────────────────────────── */}
+      <section className="min-h-screen flex items-center pt-[80px] pb-20 px-6">
+        <div className="max-w-[1120px] mx-auto w-full">
+          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-20">
+
+            {/* Left copy */}
+            <div className="flex-shrink-0 lg:max-w-[500px]">
+              {/* Live badge */}
+              <div className="hero-animate inline-flex items-center gap-2 bg-[#EEEFFE] text-[#6366F1] text-[11px] font-bold px-3 py-1.5 rounded-full mb-8 tracking-wide">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#6366F1] animate-pulse" />
+                Rooms open right now
               </div>
 
-              <h1
-                style={{
-                  fontSize: "clamp(40px, 6vw, 68px)",
-                  fontWeight: 900,
-                  color: "#111",
-                  lineHeight: 1.05,
-                  letterSpacing: "-0.04em",
-                  marginBottom: 24,
-                }}
-              >
-                Focus better
-                <br />
-                <span style={{ color: "#6366F1" }}>together.</span>
+              <h1 className="hero-animate-2 text-[clamp(44px,7vw,72px)] font-black text-[#0F0F0F] leading-[1.04] tracking-[-0.04em] mb-6">
+                Focus better<br />
+                <span className="text-[#6366F1]">together.</span>
               </h1>
 
-              <p
-                style={{
-                  fontSize: 18,
-                  color: "#555",
-                  lineHeight: 1.65,
-                  marginBottom: 40,
-                  maxWidth: 420,
-                }}
-              >
-                Productive Pals is a Pomodoro workspace where you and your team
-                share a timer, track tasks, and stay on the same page — in real time.
+              <p className="hero-animate-3 text-[17px] text-[#6B6B6B] leading-[1.7] mb-10 max-w-[400px]">
+                A shared Pomodoro workspace where you and your team run the same timer,
+                track tasks, and stay on the same page — in real time.
               </p>
 
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <button
-                  style={{
-                    background: "#6366F1",
-                    color: "#fff",
-                    border: "none",
-                    padding: "14px 28px",
-                    borderRadius: 10,
-                    fontSize: 15,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    letterSpacing: "-0.01em",
-                    transition: "background 0.15s, transform 0.15s",
-                    
-                  }}
-                  onClick={() => navigate("/create")}
-                  onMouseEnter={(e) => { e.target.style.background = "#4F46E5"; e.target.style.transform = "translateY(-1px)"; }}
-                  onMouseLeave={(e) => { e.target.style.background = "#6366F1"; e.target.style.transform = "translateY(0)"; }}
-                >
-                  Create a room
-                </button>
-                <button
-                  style={{
-                    background: "#fff",
-                    color: "#111",
-                    border: "1.5px solid #E5E5E5",
-                    padding: "14px 28px",
-                    borderRadius: 10,
-                    fontSize: 15,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    letterSpacing: "-0.01em",
-                    transition: "border-color 0.15s, background 0.15s, transform 0.15s",
-                  }}
-                  onClick={() => navigate("/join")}
-                  onMouseEnter={(e) => { e.target.style.borderColor = "#999"; e.target.style.background = "#F9F9F9"; e.target.style.transform = "translateY(-1px)"; }}
-                  onMouseLeave={(e) => { e.target.style.borderColor = "#E5E5E5"; e.target.style.background = "#fff"; e.target.style.transform = "translateY(0)"; }}
-                >
-                  Join a room
-                </button>
+              <div className="hero-animate-4 flex flex-wrap gap-3">
+                <Link to="/create">
+                  <button className="inline-flex items-center gap-2 bg-[#6366F1] text-white text-[14px] font-semibold px-6 py-3.5 rounded-[10px] hover:bg-[#4F46E5] transition-all duration-150 hover:-translate-y-px shadow-[0_2px_12px_rgba(99,102,241,0.35)]">
+                    Create a room
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </Link>
+                <Link to="/join">
+                  <button className="inline-flex items-center gap-2 bg-white text-[#0F0F0F] text-[14px] font-semibold px-6 py-3.5 rounded-[10px] border border-[#EBEBEB] hover:border-[#ABABAB] hover:bg-[#F9F9F9] transition-all duration-150 hover:-translate-y-px">
+                    Join a room
+                  </button>
+                </Link>
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginTop: 32,
-                  fontSize: 13,
-                  color: "#999",
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M7 1.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11z" stroke="#999" strokeWidth="1.2" />
-                  <path d="M5 7l1.5 1.5L9.5 5" stroke="#999" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              <div className="hero-animate-4 flex items-center gap-2 mt-7 text-[12px] text-[#ABABAB]">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                  <circle cx="6.5" cy="6.5" r="5" stroke="#ABABAB" strokeWidth="1.2" />
+                  <path d="M4.5 6.5l1.5 1.5 3-3" stroke="#ABABAB" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Free to use · No download · Works in your browser
+                Free · No download needed · Works in any browser
               </div>
             </div>
 
-            {/* Right — Live widget */}
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "center",
-                animation: "float-slow 5s ease-in-out 0.5s infinite",
-              }}
-            >
-              <FocusRoomWidget />
+            {/* Right — live widget */}
+            <div className="flex-1 flex justify-center w-full widget-float">
+              <LiveRoomCard />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Social Proof ──────────────────────────────────────────────────── */}
-      <section
-        style={{
-          borderTop: "1px solid #E5E5E5",
-          borderBottom: "1px solid #E5E5E5",
-          background: "#F7F7F7",
-          padding: "40px 24px",
-        }}
-      >
-        <div
-          className="stats-grid"
-          style={{
-            maxWidth: 900,
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
-            gap: 0,
-          }}
-        >
-          {STATS.map((s, i) => (
-            <FadeUp key={s.label} delay={i * 0.1}>
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "0 32px",
-                  borderRight: i < STATS.length - 1 ? "1px solid #E5E5E5" : "none",
-                }}
-              >
+      {/* ── STATS STRIP ───────────────────────────────────────── */}
+      <div className="border-y border-[#EBEBEB] bg-[#F5F5F5]">
+        <div className="max-w-[900px] mx-auto px-6 py-10">
+          <div className="grid grid-cols-3 gap-0">
+            {STATS.map((s, i) => (
+              <FadeUp key={s.label} delay={i * 0.08}>
                 <div
-                  style={{
-                    fontSize: 36,
-                    fontWeight: 800,
-                    color: "#111",
-                    letterSpacing: "-0.04em",
-                    lineHeight: 1.1,
-                  }}
+                  className="text-center"
+                  style={{ borderRight: i < STATS.length - 1 ? '1px solid #E0E0E0' : 'none' }}
                 >
-                  {s.value}
+                  <p className="text-[32px] font-extrabold text-[#0F0F0F] tracking-[-0.04em] leading-tight">{s.value}</p>
+                  <p className="text-[12px] text-[#9B9B9B] mt-1.5">{s.label}</p>
                 </div>
-                <div style={{ fontSize: 13, color: "#999", marginTop: 6 }}>{s.label}</div>
-              </div>
-            </FadeUp>
-          ))}
+              </FadeUp>
+            ))}
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* ── Features ──────────────────────────────────────────────────────── */}
-      <section id="features" style={{ padding: "100px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+      {/* ── FEATURES ──────────────────────────────────────────── */}
+      <section id="features" className="py-24 px-6">
+        <div className="max-w-[1120px] mx-auto">
           <FadeUp>
-            <div style={{ marginBottom: 56, maxWidth: 540 }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: "#6366F1",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  marginBottom: 16,
-                }}
-              >
-                Features
-              </div>
-              <h2
-                style={{
-                  fontSize: "clamp(28px, 4vw, 40px)",
-                  fontWeight: 800,
-                  color: "#111",
-                  letterSpacing: "-0.03em",
-                  lineHeight: 1.15,
-                  marginBottom: 16,
-                }}
-              >
-                Everything you need.
-                <br />
-                Nothing you don't.
+            <div className="mb-14">
+              <p className="text-[11px] font-bold text-[#6366F1] tracking-[0.1em] uppercase mb-4">Features</p>
+              <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold text-[#0F0F0F] tracking-[-0.03em] leading-[1.13] mb-4 max-w-[420px]">
+                Everything you need.<br />Nothing you don't.
               </h2>
-              <p style={{ fontSize: 16, color: "#666", lineHeight: 1.65 }}>
-                We kept it simple. No gamification, no dashboards-for-dashboard's-sake.
-                Just the tools that help you and your team actually get things done.
+              <p className="text-[15px] text-[#6B6B6B] leading-relaxed max-w-[400px]">
+                No gamification, no dashboards for dashboard's sake.
+                Just the tools that help you actually get things done.
               </p>
             </div>
           </FadeUp>
 
-          <div
-            className="features-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 16,
-            }}
-          >
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {FEATURES.map((f, i) => (
-              <FeatureCard key={f.title} {...f} delay={i * 0.07} />
+              <FeatureCard key={f.title} {...f} delay={i * 0.06} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── How it works ──────────────────────────────────────────────────── */}
-      <section
-        id="how-it-works"
-        style={{
-          padding: "100px 24px",
-          background: "#F7F7F7",
-          borderTop: "1px solid #E5E5E5",
-          borderBottom: "1px solid #E5E5E5",
-        }}
-      >
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+      {/* ── HOW IT WORKS ──────────────────────────────────────── */}
+      <section id="how-it-works" className="py-24 px-6 bg-[#F5F5F5] border-y border-[#EBEBEB]">
+        <div className="max-w-[1120px] mx-auto">
           <FadeUp>
-            <div style={{ marginBottom: 64, maxWidth: 480 }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: "#6366F1",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  marginBottom: 16,
-                }}
-              >
-                How it works
-              </div>
-              <h2
-                style={{
-                  fontSize: "clamp(28px, 4vw, 40px)",
-                  fontWeight: 800,
-                  color: "#111",
-                  letterSpacing: "-0.03em",
-                  lineHeight: 1.15,
-                }}
-              >
-                Up and running
-                <br />
-                in under a minute.
+            <div className="mb-14">
+              <p className="text-[11px] font-bold text-[#6366F1] tracking-[0.1em] uppercase mb-4">How it works</p>
+              <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold text-[#0F0F0F] tracking-[-0.03em] leading-[1.13]">
+                Up and running<br />in under a minute.
               </h2>
             </div>
           </FadeUp>
 
-          <div
-            className="steps-grid"
-            style={{
-              display: "flex",
-              gap: 48,
-              position: "relative",
-            }}
-          >
+          <div className="grid sm:grid-cols-3 gap-8">
             {STEPS.map((s, i) => (
-              <Step key={s.title} {...s} isLast={i === STEPS.length - 1} delay={i * 0.12} />
+              <FadeUp key={s.title} delay={i * 0.1}>
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-9 h-9 rounded-full border border-[#DDDDF0] bg-white flex items-center justify-center text-[13px] font-bold text-[#6366F1]">
+                    {s.n}
+                  </div>
+                  <div className="pt-1.5">
+                    <h3 className="text-[14px] font-semibold text-[#0F0F0F] mb-2 tracking-tight">{s.title}</h3>
+                    <p className="text-[13px] text-[#6B6B6B] leading-relaxed">{s.desc}</p>
+                  </div>
+                </div>
+              </FadeUp>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Analytics ─────────────────────────────────────────────────────── */}
-      <section id="analytics" style={{ padding: "100px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div
-            className="analytics-grid"
-            style={{
-              display: "flex",
-              gap: 80,
-              alignItems: "center",
-            }}
-          >
-            {/* Left copy */}
-            <div style={{ flex: "0 0 auto", maxWidth: 440 }}>
+      {/* ── ANALYTICS ─────────────────────────────────────────── */}
+      <section id="analytics" className="py-24 px-6">
+        <div className="max-w-[1120px] mx-auto">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            {/* Copy */}
+            <div className="lg:max-w-[420px]">
               <FadeUp>
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: "#6366F1",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    marginBottom: 16,
-                  }}
-                >
-                  Analytics
-                </div>
-                <h2
-                  style={{
-                    fontSize: "clamp(28px, 4vw, 40px)",
-                    fontWeight: 800,
-                    color: "#111",
-                    letterSpacing: "-0.03em",
-                    lineHeight: 1.15,
-                    marginBottom: 20,
-                  }}
-                >
-                  See where
-                  <br />
-                  your time goes.
+                <p className="text-[11px] font-bold text-[#6366F1] tracking-[0.1em] uppercase mb-4">Analytics</p>
+                <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold text-[#0F0F0F] tracking-[-0.03em] leading-[1.13] mb-5">
+                  See where<br />your time goes.
                 </h2>
-                <p style={{ fontSize: 16, color: "#666", lineHeight: 1.65, marginBottom: 32 }}>
-                  Every session is logged. Weekly charts show your focus patterns
-                  at a glance, so you can spot your most productive days and
-                  protect them.
+                <p className="text-[15px] text-[#6B6B6B] leading-relaxed mb-8">
+                  Every session is logged. Weekly charts reveal your focus patterns
+                  so you can protect your most productive hours.
                 </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <ul className="space-y-3.5">
                   {[
-                    "Daily and weekly focus time",
-                    "Session streaks",
-                    "Per-room history",
-                    "Completion rate by task type",
-                  ].map((item) => (
-                    <div key={item} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: 6,
-                          background: "#EEF2FF",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
+                    'Daily and weekly focus time',
+                    'Session streaks and milestones',
+                    'Per-room history',
+                    'Task completion trends',
+                  ].map(item => (
+                    <li key={item} className="flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-[5px] bg-[#EEEFFE] flex items-center justify-center flex-shrink-0">
                         <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                           <path d="M1 4l2.5 2.5L9 1" stroke="#6366F1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </div>
-                      <span style={{ fontSize: 14, color: "#444" }}>{item}</span>
-                    </div>
+                      <span className="text-[13px] text-[#444]">{item}</span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </FadeUp>
             </div>
 
-            {/* Right — chart widget */}
-            <div style={{ flex: 1 }}>
+            {/* Chart widget */}
+            <div className="flex-1 w-full">
               <FadeUp delay={0.1}>
-                <AnalyticsWidget />
+                <AnalyticsCard />
               </FadeUp>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Final CTA ─────────────────────────────────────────────────────── */}
-      <section
-        style={{
-          padding: "100px 24px 80px",
-          borderTop: "1px solid #E5E5E5",
-          background: "#F7F7F7",
-          textAlign: "center",
-        }}
-      >
+      {/* ── FINAL CTA ─────────────────────────────────────────── */}
+      <section className="py-24 px-6 bg-[#F5F5F5] border-t border-[#EBEBEB] text-center">
         <FadeUp>
-          <div style={{ maxWidth: 520, margin: "0 auto" }}>
-            <h2
-              style={{
-                fontSize: "clamp(36px, 5vw, 56px)",
-                fontWeight: 900,
-                color: "#111",
-                letterSpacing: "-0.04em",
-                lineHeight: 1.08,
-                marginBottom: 20,
-              }}
-            >
-              Ready to focus?
+          <div className="max-w-[480px] mx-auto">
+            <h2 className="text-[clamp(36px,5.5vw,60px)] font-black text-[#0F0F0F] tracking-[-0.04em] leading-[1.06] mb-5">
+              Ready to<br />focus?
             </h2>
-            <p style={{ fontSize: 17, color: "#666", lineHeight: 1.6, marginBottom: 40 }}>
-              Pick a room. Start a session. See what you can get done
-              when everyone around you is doing the same.
+            <p className="text-[16px] text-[#6B6B6B] leading-relaxed mb-10">
+              Pick a room. Start a session. See what you can finish when
+              everyone around you is doing the same.
             </p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-              <button
-                style={{
-                  background: "#6366F1",
-                  color: "#fff",
-                  border: "none",
-                  padding: "16px 32px",
-                  borderRadius: 10,
-                  fontSize: 16,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  letterSpacing: "-0.01em",
-                  transition: "background 0.15s, transform 0.15s",
-                }}
-                onMouseEnter={(e) => { e.target.style.background = "#4F46E5"; e.target.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={(e) => { e.target.style.background = "#6366F1"; e.target.style.transform = "translateY(0)"; }}
-              >
-                Create a room
-              </button>
-              <button
-                style={{
-                  background: "#fff",
-                  color: "#111",
-                  border: "1.5px solid #E5E5E5",
-                  padding: "16px 32px",
-                  borderRadius: 10,
-                  fontSize: 16,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  letterSpacing: "-0.01em",
-                  transition: "border-color 0.15s, background 0.15s, transform 0.15s",
-                }}
-                onMouseEnter={(e) => { e.target.style.borderColor = "#999"; e.target.style.background = "#F9F9F9"; e.target.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={(e) => { e.target.style.borderColor = "#E5E5E5"; e.target.style.background = "#fff"; e.target.style.transform = "translateY(0)"; }}
-              >
-                Join a room
-              </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link to="/create">
+                <button className="inline-flex items-center gap-2 justify-center bg-[#6366F1] text-white text-[15px] font-semibold px-8 py-4 rounded-[10px] hover:bg-[#4F46E5] transition-all duration-150 hover:-translate-y-px shadow-[0_2px_16px_rgba(99,102,241,0.3)] w-full sm:w-auto">
+                  Create a room
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </Link>
+              <Link to="/join">
+                <button className="inline-flex items-center justify-center bg-white text-[#0F0F0F] text-[15px] font-semibold px-8 py-4 rounded-[10px] border border-[#EBEBEB] hover:border-[#ABABAB] hover:bg-[#F9F9F9] transition-all duration-150 hover:-translate-y-px w-full sm:w-auto">
+                  Join a room
+                </button>
+              </Link>
             </div>
           </div>
         </FadeUp>
       </section>
 
-      {/* ── Footer ────────────────────────────────────────────────────────── */}
-      <footer
-        style={{
-          borderTop: "1px solid #E5E5E5",
-          padding: "32px 24px",
-          background: "#FAFAFA",
-          fontFamily: "Inter, system-ui, sans-serif",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1100,
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 16,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: 6,
-                background: "#6366F1",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
-                <circle cx="7" cy="7" r="5" stroke="#fff" strokeWidth="1.5" />
-                <path d="M7 4.5v2.5l1.5 1.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
+      {/* ── FOOTER ────────────────────────────────────────────── */}
+      <footer className="border-t border-[#EBEBEB] px-6 py-8">
+        <div className="max-w-[1120px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-5">
+          {/* Brand */}
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-[5px] bg-[#6366F1] flex items-center justify-center">
+              <Clock className="w-3 h-3 text-white" />
             </div>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#111", letterSpacing: "-0.01em" }}>
-              Productive Pals
-            </span>
-            <span style={{ fontSize: 13, color: "#ccc", margin: "0 4px" }}>·</span>
-            <span style={{ fontSize: 13, color: "#999" }}>© 2025</span>
+            <span className="text-[13px] font-semibold text-[#0F0F0F] tracking-tight">Productive Pals</span>
+            <span className="text-[#D0D0D0] mx-1">·</span>
+            <span className="text-[13px] text-[#ABABAB]">© 2025</span>
           </div>
 
-          <div style={{ display: "flex", gap: 24 }}>
-            {["Privacy", "Terms", "Twitter", "GitHub"].map((l) => (
+          {/* Links */}
+          <div className="flex items-center gap-6">
+            {['Privacy', 'Terms', 'GitHub'].map(l => (
               <a
                 key={l}
                 href="#"
-                style={{
-                  fontSize: 13,
-                  color: "#999",
-                  textDecoration: "none",
-                  transition: "color 0.15s",
-                }}
-                onMouseEnter={(e) => (e.target.style.color = "#111")}
-                onMouseLeave={(e) => (e.target.style.color = "#999")}
+                className="text-[13px] text-[#ABABAB] hover:text-[#0F0F0F] transition-colors duration-150 flex items-center gap-1.5"
               >
+                {l === 'GitHub' && <Github className="w-3.5 h-3.5" />}
                 {l}
               </a>
             ))}
           </div>
         </div>
       </footer>
-    </>
+
+    </div>
   );
 }
