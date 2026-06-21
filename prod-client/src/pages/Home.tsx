@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 
 // ── Utility ─────────────────────────────────────────────────────────────────
 const cn = (...classes) => classes.filter(Boolean).join(" ");
-const navigate = useNavigate();
 // ── Live Focus Room Widget (hero signature element) ──────────────────────────
 const AVATARS = [
   { id: 1, initials: "AK", color: "#D4A5F5", delay: 0 },
@@ -29,7 +28,7 @@ const TASKS = [
 function PulsingRing({ color, delay }) {
   return (
     <span
-      style={{
+    style={{
         position: "absolute",
         inset: -3,
         borderRadius: "50%",
@@ -38,15 +37,15 @@ function PulsingRing({ color, delay }) {
         animation: `pulse-ring 2.4s ease-out ${delay}s infinite`,
         pointerEvents: "none",
       }}
-    />
-  );
+      />
+    );
 }
 
 function FocusRoomWidget() {
   const [seconds, setSeconds] = useState(847);
   const [phase, setPhase] = useState("focus");
   const total = phase === "focus" ? 1500 : 300;
-
+  
   useEffect(() => {
     const t = setInterval(() => {
       setSeconds((s) => {
@@ -59,7 +58,7 @@ function FocusRoomWidget() {
     }, 1000);
     return () => clearInterval(t);
   }, [phase]);
-
+  
   const mins = String(Math.floor(seconds / 60)).padStart(2, "0");
   const secs = String(seconds % 60).padStart(2, "0");
   const progress = ((total - seconds) / total) * 100;
@@ -68,7 +67,7 @@ function FocusRoomWidget() {
 
   return (
     <div
-      style={{
+    style={{
         background: "#fff",
         border: "1px solid #E5E5E5",
         borderRadius: 16,
@@ -78,7 +77,7 @@ function FocusRoomWidget() {
         boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
         fontFamily: "Inter, system-ui, sans-serif",
       }}
-    >
+      >
       {/* Room header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
         <div>
@@ -512,6 +511,8 @@ function Nav() {
 
 // ── Main App ─────────────────────────────────────────────────────────────────
 export default function ProductivePalsLanding() {
+  const navigate = useNavigate();
+
   const FEATURES = [
     {
       icon: "⏱",
